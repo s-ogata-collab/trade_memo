@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Edge Radar">
-<title>需給イベントカレンダー v3｜STRUCTURAL EDGE RADAR 2026H2</title>
+<title>需給イベントカレンダー v4｜STRUCTURAL EDGE RADAR 2026H2</title>
 <style>
 :root{
   --bg:#0C1220; --panel:#131C2E; --panel2:#182338; --line:#25314A;
@@ -92,6 +92,23 @@ h1 small{color:var(--dim);font-weight:400;font-size:.76rem;margin-left:.6em}
 .cw2{border:1px solid var(--danger);color:var(--danger)}.cw1{border:1px solid var(--amber);color:var(--amber)}.cw0{border:1px solid var(--go);color:var(--go)}
 .kata{border:1px solid var(--blue-deep);color:var(--blue)}
 .biasb{border:1px solid var(--violet);color:var(--violet)}
+.rg{font-weight:700}
+.rg-JP{background:#1E3A5F;color:#9CC4F0}
+.rg-US{background:#5A2D2D;color:#F0A9A9}
+.rg-TW{background:#2D5A3D;color:#9FE0B8}
+.rg-KR{background:#4A3A5F;color:#C9B0E8}
+.rg-CN{background:#5F4A2D;color:#E8CFA0}
+.rg-GLOBAL{background:#3A3A4A;color:#B8BCC9}
+.ec{border:1px dashed var(--faint);color:var(--dim)}
+.oversea-note{font-size:.73rem;color:var(--amber);background:rgba(232,145,58,.08);border:1px solid rgba(232,145,58,.3);
+  border-radius:6px;padding:6px 9px;margin-top:6px}
+.oversea-note b{color:var(--amber)}
+.k.as{color:var(--blue)}.k.jp{color:var(--go)}
+.asset{display:inline-block;font-family:var(--mono);font-size:.68rem;background:var(--panel2);border:1px solid var(--line);
+  border-radius:4px;padding:1px 7px;margin:1px 2px;color:var(--blue)}
+.jptheme{display:inline-block;font-size:.72rem;background:rgba(63,182,168,.1);border:1px solid rgba(63,182,168,.3);
+  border-radius:4px;padding:1px 8px;margin:1px 2px;color:var(--go)}
+.ev.overseas{border-left:3px solid var(--amber-deep)}
 .mech{font-size:.8rem;color:var(--dim);margin-top:4px}
 .meta2{font-family:var(--mono);font-size:.62rem;color:var(--faint);margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
 .meta2 b{color:var(--dim)}
@@ -138,6 +155,32 @@ h1 small{color:var(--dim);font-weight:400;font-size:.76rem;margin-left:.6em}
   border-radius:5px;color:var(--ink);font-family:var(--sans);font-size:.74rem;padding:5px 8px}
 .rvbody textarea{width:100%;resize:vertical;min-height:34px}
 
+.premkt{background:var(--panel);border:1px solid var(--amber-deep);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+.pm-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;cursor:pointer;list-style:none}
+.pm-head::-webkit-details-marker{display:none}
+.pm-head::before{content:"▾";color:var(--amber);font-family:var(--mono);margin-right:2px;order:-1}
+.premkt:not([open]) .pm-head::before{content:"▸"}
+.premkt:not([open]) .pm-head{margin-bottom:0}
+.pm-body{margin-top:12px}
+.pm-eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;color:var(--amber);display:inline}
+.pm-sub{font-size:.74rem;color:var(--dim);margin-top:3px;max-width:640px}
+.pm-date{font-family:var(--mono);font-size:.72rem;color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:5px 10px;white-space:nowrap}
+.pm-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pm-item{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+.pm-item .pm-asset{font-family:var(--mono);font-size:.74rem;color:var(--ink);font-weight:700}
+.pm-item .pm-hint{font-size:.68rem;color:var(--faint);margin:2px 0 7px}
+.pm-seg{display:flex;gap:4px}
+.pm-seg button{flex:1;background:var(--bg);border:1px solid var(--line);color:var(--dim);border-radius:5px;
+  padding:5px 4px;font-size:.7rem;cursor:pointer;font-family:var(--sans)}
+.pm-seg button.on.up{background:var(--go);border-color:var(--go);color:#0C1220;font-weight:700}
+.pm-seg button.on.dn{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:700}
+.pm-seg button.on.flat{background:var(--dim);border-color:var(--dim);color:#0C1220}
+.pm-verdict{margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);
+  font-size:.82rem;color:var(--ink);line-height:1.5}
+.pm-verdict b{color:var(--go)}.pm-verdict .risk-off{color:var(--danger)}
+.pm-note{font-size:.72rem;color:var(--faint);margin-top:9px}
+.pm-note b{color:var(--amber)}
+@media(max-width:600px){.pm-grid{grid-template-columns:1fr}}
 .legend{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:22px}
 .legend h2{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;color:var(--blue);margin-bottom:8px}
 .lg{display:grid;grid-template-columns:120px 1fr;gap:6px 10px;font-size:.76rem}
@@ -170,7 +213,7 @@ h1 small{color:var(--dim);font-weight:400;font-size:.76rem;margin-left:.6em}
 <div class="wrap">
 <header>
   <div>
-    <div class="eyebrow">Structural Edge Radar — 2026 H2 / v3</div>
+    <div class="eyebrow">Structural Edge Radar — 2026 H2 / v4</div>
     <h1>需給イベントカレンダー<small>歪みの予報。売買シグナルではなく、当日の反応確認とセットで使う</small></h1>
   </div>
   <div class="today">TODAY: <b id="todayLabel"></b></div>
@@ -191,8 +234,26 @@ h1 small{color:var(--dim);font-weight:400;font-size:.76rem;margin-left:.6em}
   <div class="nu-row"><span class="nu-count" id="nuCount"></span><span class="nu-title" id="nuTitle"></span></div>
 </div>
 
+<details class="premkt" id="premkt" open>
+  <summary class="pm-head">
+    <div>
+      <div class="pm-eyebrow">◐ 毎朝の海外マーケット・チェックリスト</div>
+      <div class="pm-sub">前日の海外市場から日本株への波及を確認する。イベントではなく「毎朝見る」定点。チェックは当日限り（翌朝リセット）。</div>
+    </div>
+    <div class="pm-date" id="pmDate"></div>
+  </summary>
+  <div class="pm-body">
+    <div class="pm-grid" id="pmGrid"></div>
+    <div class="pm-verdict" id="pmVerdict">前日終値を確認してチェックすると、今日の傾きが出ます。</div>
+    <div class="pm-note">これは方向のバイアス把握であって売買シグナルではない。<b>海外がどちらに振れても、日本の寄り後に対象テーマがTOPIX相対・Breadth・出来高で反応して初めて検討</b>する。反応しなければ見送り。</div>
+  </div>
+</details>
+
 <div class="filters" id="filters">
   <button class="chip on" data-f="all">すべて</button>
+  <span class="chip sep">｜地域</span>
+  <button class="chip" data-f="jp">国内のみ</button>
+  <button class="chip" data-f="overseas">海外のみ</button>
   <span class="chip sep">｜</span>
   <button class="chip" data-f="imp3">影響:特大</button>
   <button class="chip" data-f="trad3">取りやすさ:★★★</button>
@@ -218,7 +279,12 @@ h1 small{color:var(--dim);font-weight:400;font-size:.76rem;margin-left:.6em}
     <dt>✓ Go条件</dt><dd><b>やってよい確認条件</b>。これが揃って初めて検討可。テーマモニターのTOPIX相対・Breadth・出来高で確認する項目。</dd>
     <dt>✕ 無効化</dt><dd><b>「イベントはあるが今回は効いていない」の判定</b>。1つでも成立なら見送り。「イベント＝必ず動く」という錯覚への防波堤。</dd>
     <dt>事後ログ</dt><dd>各カード下部の「事後検証ログ」を開いて結果を記録（worked/failed/neutral、無効化条件の発動有無、効いたテーマ、メモ）。<b>ブラウザに保存</b>され、来期の精度を上げる。JSON書き出し可。</dd>
-    <dt>ID / SOURCE</dt><dd>イベント固定ID（検証ログ紐付け用）と情報の出所・確認日。<b>「要直前確認」印</b>は推計金額・未確定日程。トレード前に一次情報で更新。</dd>
+    <dt>地域</dt><dd>イベントの発生地域（日本／米国／台湾／韓国／中国）。<b>海外イベントは左端がオレンジの縦線</b>。「海外のみ／国内のみ」フィルタで切替。</dd>
+    <dt>イベント種別</dt><dd><b>国内需給</b>=Structural（制度・需給）／<b>マクロ政策</b>=FOMC等／<b>マクロ指標</b>=CPI・雇用統計等／<b>海外テーマ触媒</b>=NVIDIA/TSMC/Micron決算等の情報イベント。海外要因をStructural Edgeと混ぜないための分類。</dd>
+    <dt>◉ 先行資産</dt><dd>そのイベントで<b>先に反応する海外資産</b>（SOX・NVDA・TSM ADR・US10Y・USDJPY等）。日本の寄り前にここを確認する。</dd>
+    <dt>◈ 日本波及先</dt><dd>その海外イベントが<b>日本のどのテーマに波及しうるか</b>。ただし波及は前提ではなく、寄り後の反応確認が必須（Go条件）。</dd>
+    <dt>海外イベントの鉄則</dt><dd><b>海外イベント単独では売買しない。</b>日本市場で対象テーマがTOPIX相対・Breadth・出来高で反応したら初めて検討。これが最重要。</dd>
+    <dt>ID / SOURCE</dt><dd>イベント固定ID（検証ログ紐付け用）と情報の出所・確認日。<b>「要直前確認」印</b>は推計金額・未確定日程（特に海外決算・月次は日付が動く）。トレード前に一次情報で更新。</dd>
   </dl>
 </div>
 
@@ -458,11 +524,89 @@ var EV=[
  up:'12月決算の高配当・優待銘柄',dn:'権利落ち日の機械的な下げ',
  ph:{pre:'9月末と同じ型の縮小版',day:'—',post:'落ち分超の下落をB型判定'},
  confirm:['高配当テーマがTOPIXに勝っている','過熱していない'],invalid:['高配当テーマがTOPIXに勝てない'],
- warn:'商い薄のためサイズを落とす',src:{label:'取引所カレンダー（要確認）',chk:'26/07/04',need:1},themes:['high_dividend']}
+ warn:'商い薄のためサイズを落とす',src:{label:'取引所カレンダー（要確認）',chk:'26/07/04',need:1},themes:['high_dividend']},
+
+/* ===== 海外イベント（Global Macro / Overseas Theme Catalyst） ===== */
+{id:'2026h2_tsmc_rev_jul',s:'2026-08-10',e:'2026-08-10',dl:'8/10頃',t:'TSMC 7月度 月次売上',region:'TW',eclass:'overseas_theme_catalyst',
+ imp:2,trad:2,crowd:1,flow:'both',bias:'two_sided',size:'small',hold:'翌営業日中心',exit:'日本寄り後に波及なければ即撤退',kata:'C',
+ mech:'TSMCは毎月10日前後（10営業日目）に前月の月次売上を開示。AI需要の代理指標として日本の半導体前工程・材料・後工程に波及しやすい。海外の情報イベントであり、単独では売買しない。',
+ up:'売上が市場期待を上回る→前工程(8035東エレク/7735SCREEN/6146ディスコ)・材料(4063信越/3436SUMCO)・後工程',
+ dn:'期待割れ→半導体装置・材料に利食い',
+ ph:{pre:'開示予定日を確認（月次は毎月10日前後）',day:'台湾寄りのTSMC反応を確認',post:'翌日の日本半導体テーマの1D TOPIX相対とBreadthを確認してから'},
+ confirm:['売上が市場期待を上回る','TSMC株(2330/TSM ADR)が反応','翌日の日本半導体テーマがTOPIX相対で上位','Breadthが広い（1銘柄だけでない）'],
+ invalid:['TSMCは強いが日本株に波及しない','一部銘柄だけ急騰','日本の半導体テーマがTOPIX相対で下位'],
+ warn:'月次は日付が毎月動く。10営業日目を要確認',src:{label:'TSMC IR 月次売上（要確認）',url:'https://investor.tsmc.com/english/monthly-revenue/2026',chk:'26/07/04',need:1},
+ themes:['semi_front','semi_material','semi_back'],confirm_assets:['TSMC 2330','TSM ADR','TAIEX','SOX'],jp_themes:['前工程','材料','後工程','電子部品']},
+
+{id:'2026h2_fomc_sep',s:'2026-09-15',e:'2026-09-16',dl:'9/15-16',t:'FOMC（SEP・ドットプロット回）',region:'US',eclass:'macro_policy',
+ imp:3,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'通過後',exit:'—',kata:'D',
+ mech:'米金融政策決定。結果は日本時間9/17未明3:00、会見3:30。SEP(経済見通し)・ドットプロット公表回で反応が大きい。日銀会合と同様、直前に方向を当てるのはエッジではなく、通過後の資金循環（金利敏感テーマ）を取る。',
+ up:'（利下げ/ハト派→）グロース・SaaS・REIT・不動産／（タカ派→）銀行・保険・バリュー',
+ dn:'逆方向のテーマ',
+ ph:{pre:'ポジション縮小。この日をまたぐ新規建ては避ける',day:'9/17未明の結果と会見を確認するだけ',post:'ドル円・米金利の方向を確認し、日本の金利敏感テーマの資金循環に乗る（D型）'},
+ confirm:['米金利方向が明確','ドル円が同方向に動く','日本株の金利敏感テーマがTOPIX相対で反応'],
+ invalid:['米金利は動いたが日本株テーマが反応しない','ドル円と金利が逆方向でシグナル不明瞭'],
+ warn:'日本時間の早朝に結果。寄り前のドル円・米先物を必ず確認',src:{label:'Fed公式（日程確定）',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',chk:'26/07/04'},
+ themes:['bank','insurance','reit','growth'],confirm_assets:['US10Y','USDJPY','NASDAQ','S&P500'],jp_themes:['銀行','保険','REIT','不動産','SaaS','グロース']},
+
+{id:'2026h2_micron_sep',s:'2026-09-24',e:'2026-09-24',dl:'9月下旬頃',t:'Micron 決算（会計年度末Q4）',region:'US',eclass:'overseas_theme_catalyst',
+ imp:2,trad:2,crowd:1,flow:'both',bias:'two_sided',size:'small',hold:'翌営業日中心',exit:'日本寄り後に波及なければ撤退',kata:'C',
+ mech:'メモリ大手Micronの決算。HBM/DRAM/NAND価格見通しがキオクシア(285A)やメモリ関連・シリコンウェハに波及。時間外の反応→翌日の日本メモリ関連という流れ。',
+ up:'メモリ価格見通しが強い→キオクシア285A・SUMCO3436・信越4063・電子部品',
+ dn:'価格見通し弱い→メモリ関連に売り',
+ ph:{pre:'決算予定日を確認',day:'米時間外のMicron反応を確認',post:'翌日の日本メモリ関連の1D相対・Breadthを確認してから'},
+ confirm:['HBM/DRAM/NAND価格見通しが強い','Micron株が時間外で反応','日本のメモリ関連が連動','Breadthが広い'],
+ invalid:['Micronは強いが日本株に波及しない','一部銘柄だけ動く'],
+ warn:'決算日は四半期ごと要確認',src:{label:'Micron IR（要確認）',chk:'26/07/04',need:1},
+ themes:['memory','semi_material'],confirm_assets:['Micron MU','SOX','SK Hynix','Samsung'],jp_themes:['メモリ','材料','電子部品']},
+
+{id:'2026h2_tsmc_q3_earnings',s:'2026-10-15',e:'2026-10-15',dl:'10月中旬頃',t:'TSMC 第3四半期決算',region:'TW',eclass:'overseas_theme_catalyst',
+ imp:3,trad:2,crowd:1,flow:'both',bias:'two_sided',size:'small',hold:'翌営業日中心',exit:'日本寄り後に波及なければ撤退',kata:'C',
+ mech:'TSMCの四半期決算＋来期ガイダンス。AI・半導体需要の最重要指標の一つ。設備投資計画は日本の半導体装置に直接効く。月次売上より情報量が多い。',
+ up:'ガイダンス・設備投資が強い→前工程(8035/7735/6146)・材料(4063/3436)・後工程',
+ dn:'ガイダンス弱い→半導体装置・材料に売り',
+ ph:{pre:'決算予定日を確認（前年は10/16）',day:'決算とガイダンス・設備投資計画を確認',post:'翌日の日本半導体テーマの1D相対・Breadthを確認してから'},
+ confirm:['ガイダンス・設備投資が市場期待を上回る','TSMC株が反応','翌日の日本半導体テーマがTOPIX相対で上位','Breadthが広い'],
+ invalid:['TSMCは強いが日本株に波及しない','一部銘柄だけ急騰'],
+ warn:'正確な決算日はTSMC IRで要確認',src:{label:'TSMC IR 財務カレンダー（要確認）',url:'https://investor.tsmc.com/english/financial-calendar',chk:'26/07/04',need:1},
+ themes:['semi_front','semi_material','semi_back'],confirm_assets:['TSMC 2330','TSM ADR','TAIEX','SOX'],jp_themes:['前工程','材料','後工程','AIインフラ']},
+
+{id:'2026h2_fomc_oct',s:'2026-10-27',e:'2026-10-28',dl:'10/27-28',t:'FOMC（展望なし回）',region:'US',eclass:'macro_policy',
+ imp:3,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'通過後',exit:'—',kata:'D',
+ mech:'米金融政策決定。結果は日本時間10/29未明。SEP無しの回だが政策変更・会見トーンで反応。日本のTOPIX入替（10/30）・日銀（10/29-30）と重なる週で、需給とマクロが交錯する最注意週。',
+ up:'（ハト派→）グロース・REIT／（タカ派→）銀行・保険',dn:'逆方向のテーマ',
+ ph:{pre:'この週は特に軽く。日銀・TOPIX入替と重複',day:'10/29未明のFOMC結果を確認',post:'ドル円・米金利方向を確認し資金循環に乗る'},
+ confirm:['米金利方向が明確','ドル円が同方向','日本の金利敏感テーマがTOPIX相対で反応'],
+ invalid:['米金利は動いたが日本株テーマが反応しない'],
+ warn:'10/29-30は日銀＋TOPIX入替＋FOMC余韻が交錯する超特異週',src:{label:'Fed公式（日程確定）',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',chk:'26/07/04'},
+ themes:['bank','insurance','reit','growth'],confirm_assets:['US10Y','USDJPY','NASDAQ'],jp_themes:['銀行','保険','REIT','グロース']},
+
+{id:'2026h2_nvidia_q3',s:'2026-11-18',e:'2026-11-18',dl:'11月中旬頃',t:'NVIDIA 第3四半期決算（下期最大の海外テーマ触媒）',region:'US',eclass:'overseas_theme_catalyst',
+ imp:3,trad:2,crowd:2,flow:'both',bias:'two_sided',size:'small',hold:'翌営業日中心',exit:'日本寄り後に波及なければ撤退',kata:'C',
+ mech:'AI相場の中心。決算は米引け後（日本時間翌朝）、ガイダンスの強弱でSOX・AIインフラ全体が動く。翌日の日本のAI・半導体・電子部品・データセンター電力・光通信に波及。前年Q3は11/19開示。',
+ up:'時間外が強い→半導体装置・後工程・AIインフラ・光通信・電子部品・DC電力(6501日立/6503三菱電機など)',
+ dn:'ガイダンス失望→AI関連全般に売り',
+ ph:{pre:'決算予定日を確認（前年11/19）。この週はAI関連のサイズ調整',day:'米時間外のNVIDIA反応とSOX先物を確認',post:'翌日の日本AI/半導体テーマの1D相対が上位かつBreadthが広いか確認してから'},
+ confirm:['NVIDIA時間外が強い','SOX先物/米半導体が反応','翌日の日本AI/半導体テーマの1D相対が上位','Breadthが広い'],
+ invalid:['NVIDIAは強いが日本株に波及しない','一部銘柄だけ急騰','日本のAIテーマがTOPIX相対で下位'],
+ warn:'正確な決算日はNVIDIA IRで要確認。混雑度高＝織り込み後の後追い注意',src:{label:'NVIDIA IR（要確認）',chk:'26/07/04',need:1},
+ themes:['semi_front','semi_back','ai_infra','optical','dc_power'],confirm_assets:['NVIDIA NVDA','SOX','NASDAQ','TSM ADR'],jp_themes:['前工程','後工程','AIインフラ','光通信','電子部品','データセンター電力']},
+
+{id:'2026h2_fomc_dec',s:'2026-12-08',e:'2026-12-09',dl:'12/8-9',t:'FOMC（SEP・年内最終）',region:'US',eclass:'macro_policy',
+ imp:3,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'通過後',exit:'—',kata:'D',
+ mech:'年内最後の米金融政策決定。結果は日本時間12/10未明。SEP・ドットプロット公表回で来年の利下げ経路が焦点。年末損出し・日銀（12/17-18）の前哨。',
+ up:'（ハト派→）グロース・REIT／（タカ派→）銀行・保険',dn:'逆方向のテーマ',
+ ph:{pre:'ポジション縮小',day:'12/10未明の結果とドットプロットを確認',post:'来年の金利経路を織り込んだ資金循環に乗る'},
+ confirm:['米金利方向が明確','ドル円が同方向','日本の金利敏感テーマがTOPIX相対で反応'],
+ invalid:['米金利は動いたが日本株テーマが反応しない'],
+ warn:'来年の利下げ経路次第で年末年始の地合いが決まる',src:{label:'Fed公式（日程確定）',url:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',chk:'26/07/04'},
+ themes:['bank','insurance','reit','growth'],confirm_assets:['US10Y','USDJPY','NASDAQ'],jp_themes:['銀行','保険','REIT','グロース']}
 ];
 
 var IMP=['','中','高','特大'],TRAD=['','★','★★','★★★'],CROWD=['低','中','高'];
 var FLOW={buy:'買い需給',sell:'売り需給',both:'両方向'};
+var REGION={JP:'日本',US:'米国',TW:'台湾',KR:'韓国',CN:'中国',GLOBAL:'グローバル'};
+var ECLASS={domestic_structural:'国内需給',macro_policy:'マクロ政策',macro_data:'マクロ指標',overseas_theme_catalyst:'海外テーマ触媒',overseas_lead_market:'海外先行市場',passive_global:'グローバルパッシブ'};
 var MN={7:'JULY 2026 ── 7月',8:'AUGUST 2026 ── 8月',9:'SEPTEMBER 2026 ── 9月',10:'OCTOBER 2026 ── 10月',11:'NOVEMBER 2026 ── 11月',12:'DECEMBER 2026 ── 12月'};
 var WD=['日','月','火','水','木','金','土'];
 
@@ -514,13 +658,20 @@ function reviewBlock(ev){
 
 function card(ev,st){
   var pn=phaseNow(ev);
-  var h='<article class="ev '+(st.k==='f'?'done':st.k==='a'?'active':st.k==='s'?'soon':'')+'" '+
-    'data-imp="'+ev.imp+'" data-trad="'+ev.trad+'" data-crowd="'+ev.crowd+'" data-flow="'+ev.flow+'" data-state="'+st.k+'">'+
+  var region=ev.region||'JP';
+  var eclass=ev.eclass||'domestic_structural';
+  var isOverseas=(region!=='JP');
+  var h='<article class="ev '+(st.k==='f'?'done':st.k==='a'?'active':st.k==='s'?'soon':'')+(isOverseas?' overseas':'')+'" '+
+    'data-imp="'+ev.imp+'" data-trad="'+ev.trad+'" data-crowd="'+ev.crowd+'" data-flow="'+ev.flow+'" data-state="'+st.k+'" '+
+    'data-region="'+region+'" data-eclass="'+eclass+'">'+
   '<div class="datecol"><div class="d">'+esc(ev.dl)+'</div>'+
   '<div class="st '+st.k+'">'+st.label+'</div>'+
   '<div class="conf">確認 '+esc(ev.src.chk)+(ev.src.need?'<br>要直前確認':'')+'</div>'+
   '<div class="eid">'+esc(ev.id)+'</div></div>'+
-  '<div><h3>'+esc(ev.t)+
+  '<div><h3>'+
+    '<span class="badge rg rg-'+region+'">'+REGION[region]+'</span>'+
+    esc(ev.t)+
+    '<span class="badge ec">'+ECLASS[eclass]+'</span>'+
     '<span class="badge imp'+ev.imp+'">影響 '+IMP[ev.imp]+'</span>'+
     '<span class="badge tr'+ev.trad+'">取りやすさ '+TRAD[ev.trad]+'</span>'+
     '<span class="badge cw'+ev.crowd+'">混雑 '+CROWD[ev.crowd]+'</span>'+
@@ -529,6 +680,7 @@ function card(ev,st){
   '<div class="mech">'+esc(ev.mech)+'</div>'+
   '<div class="meta2"><span>需給: <b>'+FLOW[ev.flow]+'</b></span><span>size: <b>'+esc(ev.size)+'</b></span>'+
     '<span>保有: <b>'+esc(ev.hold)+'</b></span>'+(ev.exit&&ev.exit!=='—'?'<span>exit: <b>'+esc(ev.exit)+'</b></span>':'')+'</div>'+
+  (isOverseas?'<div class="oversea-note">海外の情報イベント。<b>これ単独では売買しない。</b>日本の寄り後に対象テーマがTOPIX相対・Breadth・出来高で反応したら検討。</div>':'')+
   '<div class="phases">'+
     '<div class="phc pre'+(pn==='pre'?' now':'')+'"><div class="pk">事前</div><div class="pv">'+esc(ev.ph.pre)+'</div></div>'+
     '<div class="phc day'+(pn==='day'?' now':'')+'"><div class="pk">当日</div><div class="pv">'+esc(ev.ph.day)+'</div></div>'+
@@ -536,6 +688,8 @@ function card(ev,st){
   '</div><div class="rows">';
   if(ev.up)h+='<div class="row"><div class="k up">▲ 追い風</div><div class="v">'+esc(ev.up)+'</div></div>';
   if(ev.dn)h+='<div class="row"><div class="k dn">▼ 向かい風</div><div class="v">'+esc(ev.dn)+'</div></div>';
+  if(ev.confirm_assets&&ev.confirm_assets.length)h+='<div class="row"><div class="k as">◉ 先行資産</div><div class="v">'+ev.confirm_assets.map(function(a){return'<span class="asset">'+esc(a)+'</span>'}).join(' ')+'</div></div>';
+  if(ev.jp_themes&&ev.jp_themes.length)h+='<div class="row"><div class="k jp">◈ 日本波及先</div><div class="v">'+ev.jp_themes.map(function(a){return'<span class="jptheme">'+esc(a)+'</span>'}).join(' ')+'</div></div>';
   if(ev.confirm&&ev.confirm.length)h+='<div class="row"><div class="k cf">✓ Go条件</div><div class="v">'+li(ev.confirm)+'</div></div>';
   if(ev.invalid&&ev.invalid.length)h+='<div class="row"><div class="k iv">✕ 無効化</div><div class="v dim">'+li(ev.invalid)+'</div></div>';
   if(ev.warn)h+='<div class="row"><div class="k wr">⚠ 注意</div><div class="v dim">'+esc(ev.warn)+'</div></div>';
@@ -590,6 +744,65 @@ function render(){
 }
 render();
 
+/* ===== 毎朝の海外マーケット・チェックリスト ===== */
+var PM_ASSETS=[
+  {k:'sox',label:'SOX（米半導体指数）',hint:'→ 前工程・後工程・材料・電子部品'},
+  {k:'nasdaq',label:'NASDAQ / S&P500',hint:'→ グロース・ハイテク全般の地合い'},
+  {k:'nvda',label:'NVIDIA',hint:'→ AIインフラ・半導体装置・光通信'},
+  {k:'tsm',label:'TSMC ADR / 台湾加権',hint:'→ 半導体前工程・材料'},
+  {k:'sk',label:'SK Hynix / Samsung / KOSPI半導体',hint:'→ メモリ・キオクシア・ウェハ'},
+  {k:'us10y',label:'米10年金利',hint:'上昇→銀行・保険／低下→グロース・REIT'},
+  {k:'usdjpy',label:'ドル円',hint:'円安→輸出・自動車／円高→内需'},
+  {k:'vix',label:'VIX / ハンセンテック',hint:'VIX急騰→リスクオフ／中国関連の地合い'}
+];
+var PM_LS='demandCal_premkt_v4';
+var pmToday=(today.getMonth()+1)+'/'+today.getDate();
+document.getElementById('pmDate').textContent=pmToday+'（'+WD[today.getDay()]+'）分';
+function pmLoad(){try{var o=JSON.parse(localStorage.getItem(PM_LS));if(o&&o.date===pmToday)return o.vals||{};}catch(e){}return{}}
+function pmSave(vals){try{localStorage.setItem(PM_LS,JSON.stringify({date:pmToday,vals:vals}))}catch(e){}}
+var PM=pmLoad();
+function pmRender(){
+  var grid=document.getElementById('pmGrid');grid.innerHTML='';
+  PM_ASSETS.forEach(function(a){
+    var it=document.createElement('div');it.className='pm-item';
+    var v=PM[a.k];
+    it.innerHTML='<div class="pm-asset">'+a.label+'</div><div class="pm-hint">'+a.hint+'</div>'+
+      '<div class="pm-seg">'+
+      ['up','flat','dn'].map(function(dir){
+        var lbl={up:'↑ 上',flat:'→ 横',dn:'↓ 下'}[dir];
+        return '<button data-k="'+a.k+'" data-dir="'+dir+'" class="'+(v===dir?('on '+dir):'')+'">'+lbl+'</button>';
+      }).join('')+'</div>';
+    grid.appendChild(it);
+  });
+  pmVerdict();
+}
+function pmVerdict(){
+  var up=0,dn=0,n=0;
+  ['sox','nasdaq','nvda','tsm','sk'].forEach(function(k){if(PM[k]){n++;if(PM[k]==='up')up++;if(PM[k]==='dn')dn++;}});
+  var rate=PM.us10y,fx=PM.usdjpy,vix=PM.vix;
+  var el=document.getElementById('pmVerdict');
+  if(n===0&&!rate&&!fx&&!vix){el.innerHTML='前日終値を確認してチェックすると、今日の傾きが出ます。';return;}
+  var msg=[];
+  if(up-dn>=2)msg.push('<b>ハイテク・半導体は追い風寄り</b>（前日海外がリスクオン）。日本の半導体・AIテーマの寄りを確認。');
+  else if(dn-up>=2)msg.push('<span class="risk-off">ハイテク・半導体は向かい風寄り</span>（前日海外がリスクオフ）。半導体・グロースは慎重に。');
+  else if(n>0)msg.push('ハイテクは方向感が乏しい。無理に半導体・AIを取りに行かない。');
+  if(rate==='up')msg.push('米金利↑ → 銀行・保険に追い風、REIT・グロースに逆風の傾き。');
+  else if(rate==='dn')msg.push('米金利↓ → グロース・REIT・不動産に追い風の傾き。');
+  if(fx==='up')msg.push('ドル円↑（円安）→ 輸出・自動車に追い風。');
+  else if(fx==='dn')msg.push('ドル円↓（円高）→ 輸出に逆風、内需・電力・REITに相対追い風。');
+  if(vix==='up')msg.push('<span class="risk-off">VIX↑ → 全体リスクオフ。サイズを落とす日。</span>');
+  el.innerHTML=msg.join('<br>');
+}
+document.getElementById('pmGrid').addEventListener('click',function(e){
+  var b=e.target.closest('.pm-seg button');if(!b)return;
+  var k=b.dataset.k,dir=b.dataset.dir;
+  PM[k]=(PM[k]===dir)?null:dir;pmSave(PM);
+  b.parentNode.querySelectorAll('button').forEach(function(x){x.className=''});
+  if(PM[k])b.className='on '+dir;
+  pmVerdict();
+});
+pmRender();
+
 document.getElementById('list').addEventListener('click',function(e){
   var b=e.target.closest('.seg button');if(!b)return;
   var id=b.dataset.id,f=b.dataset.field,v=b.dataset.val;
@@ -633,6 +846,8 @@ document.getElementById('filters').addEventListener('click',function(e){
     if(f==='imp3')show=imp===3;
     else if(f==='trad3')show=trad===3;
     else if(f==='lowcrowd')show=crowd<=1;
+    else if(f==='jp')show=(el.dataset.region==='JP');
+    else if(f==='overseas')show=(el.dataset.region!=='JP');
     else if(f==='buy')show=(flow==='buy'||flow==='both');
     else if(f==='sell')show=(flow==='sell'||flow==='both');
     else if(f==='future')show=stt!=='f';
