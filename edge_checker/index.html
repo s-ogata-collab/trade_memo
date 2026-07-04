@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0C1220">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Edge Radar">
+<title>EDGE CHECKER v2｜期待値フィルター</title>
+<style>
+:root{
+  --bg:#0C1220; --panel:#131C2E; --panel2:#182338; --line:#25314A;
+  --ink:#D9E2F0; --dim:#7C8AA5; --faint:#4A5670;
+  --blue:#5B9BD5; --blue-deep:#2E74B5; --amber:#E8913A; --amber-deep:#C55A11;
+  --go:#3FB6A8; --hold:#E8913A; --danger:#E05C5C; --violet:#9B8CDB; --plan:#5B9BD5;
+  --mono:"Consolas","SF Mono","Cascadia Code",monospace;
+  --sans:"Yu Gothic UI","Yu Gothic","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;padding-bottom:96px;
+  padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.012) 2px 4px)}
+.wrap{max-width:900px;margin:0 auto;padding:0 14px;position:relative;z-index:1}
+
+header{border-bottom:1px solid var(--line);padding:16px 0 12px;margin-bottom:12px}
+.eyebrow{font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;color:var(--blue);text-transform:uppercase}
+h1{font-size:1.1rem;font-weight:700;letter-spacing:.03em;margin-top:2px}
+h1 small{color:var(--dim);font-weight:400;font-size:.76rem;margin-left:.5em}
+.header-row{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.ticket{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ticket input{background:var(--panel);border:1px solid var(--line);color:var(--ink);
+  font-family:var(--mono);font-size:.82rem;padding:7px 10px;border-radius:6px;width:160px}
+.ticket input:focus{outline:2px solid var(--blue-deep)}
+.btn-reset{background:transparent;border:1px solid var(--line);color:var(--dim);
+  font-size:.72rem;padding:7px 12px;border-radius:6px;cursor:pointer;font-family:var(--sans)}
+.btn-reset:hover{border-color:var(--amber);color:var(--amber)}
+
+.ctxbar{background:var(--panel2);border:1px solid var(--blue-deep);border-radius:8px;padding:8px 12px;
+  margin-bottom:12px;font-size:.78rem;color:var(--ink);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.ctxbar .cl{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--blue)}
+.ctxbar b{color:var(--violet)}
+
+nav{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto}
+.tab{flex:1;min-width:96px;background:var(--panel);border:1px solid var(--line);border-bottom:2px solid transparent;
+  color:var(--dim);padding:9px 5px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.78rem;font-weight:600;
+  text-align:center;white-space:nowrap;font-family:var(--sans)}
+.tab .n{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;display:block;color:var(--faint)}
+.tab.on{color:var(--ink);background:var(--panel2);border-bottom-color:var(--blue)}
+.tab.on .n{color:var(--blue)}
+section{display:none}
+section.on{display:block;animation:fade .16s ease}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){section.on{animation:none}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:10px}
+.card h2{font-size:.92rem;color:var(--blue);margin-bottom:7px;letter-spacing:.02em}
+.card h2 .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;color:var(--faint);margin-left:.5em}
+.hint{color:var(--dim);font-size:.77rem;margin-bottom:9px}
+.hint b{color:var(--amber)}
+
+.q{display:flex;gap:10px;align-items:flex-start;padding:8px 9px;border-radius:8px;cursor:pointer}
+.q:hover{background:var(--panel2)}
+.q input[type=checkbox]{appearance:none;flex:none;width:20px;height:20px;margin-top:2px;border:1.5px solid var(--faint);
+  border-radius:5px;cursor:pointer;position:relative;background:transparent}
+.q input[type=checkbox]:checked{background:var(--blue-deep);border-color:var(--blue)}
+.q input[type=checkbox]:checked::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:.8rem;font-weight:700}
+.q.checked .qt{color:var(--ink)}
+.q .qbody{flex:1}
+.q .qn{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--amber)}
+.q .qt{font-size:.86rem;font-weight:600;color:var(--dim)}
+.q .qs{font-size:.73rem;color:var(--faint);margin-top:1px}
+.q textarea{width:100%;margin-top:6px;background:var(--bg);border:1px solid var(--line);border-radius:6px;
+  color:var(--ink);font-family:var(--sans);font-size:.79rem;padding:5px 8px;resize:vertical;min-height:32px;display:none}
+.q.checked textarea{display:block}
+.q.flag input[type=checkbox]:checked{background:var(--danger);border-color:var(--danger)}
+.q.flag .qn{color:var(--danger)}
+
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:999px;
+  padding:6px 14px;font-size:.79rem;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.pill.on{background:var(--blue-deep);border-color:var(--blue);color:#fff}
+.pill.exec.on{background:var(--amber-deep);border-color:var(--amber)}
+.pill .sub{font-size:.62rem;display:block;color:inherit;opacity:.7;font-weight:400}
+
+.kata-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-bottom:12px}
+.kbtn{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px;cursor:pointer;text-align:left;color:var(--ink);font-family:var(--sans)}
+.kbtn .kl{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;color:var(--amber)}
+.kbtn .kt{font-size:.88rem;font-weight:700;margin:2px 0}
+.kbtn .kd{font-size:.71rem;color:var(--dim)}
+.kbtn.on{border-color:var(--blue);background:var(--panel2);box-shadow:inset 3px 0 0 var(--blue)}
+.period{font-family:var(--mono);font-size:.73rem;color:var(--go);border:1px solid var(--line);border-radius:6px;padding:5px 10px;display:inline-block;margin-bottom:10px}
+.fail{border-left:3px solid var(--amber-deep);background:var(--panel2);border-radius:0 8px 8px 0;padding:10px 12px;margin-top:12px}
+.fail h3{font-size:.77rem;color:var(--amber);letter-spacing:.04em;margin-bottom:4px}
+.fail li{font-size:.79rem;color:var(--dim);margin-left:18px}
+
+.ref table{width:100%;border-collapse:collapse;font-size:.79rem}
+.ref th{font-family:var(--mono);font-size:.64rem;letter-spacing:.13em;color:var(--blue);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);text-transform:uppercase}
+.ref td{padding:7px 8px;border-bottom:1px solid rgba(37,49,74,.5);vertical-align:top;color:var(--ink)}
+.ref td:first-child{color:var(--amber);white-space:nowrap;font-weight:600}
+.ref .dim{color:var(--dim)}
+
+.meter{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.meter .score{font-family:var(--mono);font-size:1.5rem;font-weight:700;min-width:88px;text-align:center}
+.meter .desc{font-size:.79rem;color:var(--dim)}
+
+/* trade plan form */
+.pform{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pf{display:flex;flex-direction:column;gap:3px}
+.pf.full{grid-column:1/-1}
+.pf label{font-size:.72rem;color:var(--dim);font-family:var(--mono);letter-spacing:.04em}
+.pf input,.pf textarea{background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--ink);
+  font-family:var(--sans);font-size:.82rem;padding:6px 9px}
+.pf input:focus,.pf textarea:focus{outline:2px solid var(--blue-deep)}
+.pf .calc{font-family:var(--mono);font-size:.72rem;color:var(--go);padding-top:2px}
+.pf .calc.bad{color:var(--danger)}
+.rrbox{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);
+  display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:.8rem}
+.rrbox b{color:var(--ink)}
+.rrbox .rv{color:var(--go)}.rrbox .rv.bad{color:var(--danger)}
+
+/* trade log */
+.logrow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(37,49,74,.5);font-size:.8rem}
+.logrow .lt{color:var(--ink)}
+.logrow .lm{font-family:var(--mono);font-size:.68rem;color:var(--dim)}
+.logrow .del{background:none;border:none;color:var(--faint);cursor:pointer;font-size:.9rem}
+.logrow .del:hover{color:var(--danger)}
+.logempty{color:var(--faint);font-size:.78rem;padding:10px 0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.toolbar button{background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:6px;padding:7px 13px;font-size:.75rem;cursor:pointer;font-family:var(--sans)}
+.toolbar button:hover{border-color:var(--blue);color:var(--blue)}
+.toolbar button.primary{border-color:var(--go);color:var(--go)}
+.stats{font-family:var(--mono);font-size:.74rem;color:var(--dim);margin-top:10px;line-height:1.8}
+.stats b{color:var(--ink)}
+
+/* verdict strip - 4 stage */
+#verdict{position:fixed;left:0;right:0;bottom:0;z-index:10;background:#0A0F1B;border-top:1px solid var(--line);font-family:var(--mono);padding-bottom:env(safe-area-inset-bottom)}
+#verdict .inner{max-width:900px;margin:0 auto;padding:11px 14px}
+#verdict .vtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#verdict .lamp{width:12px;height:12px;border-radius:50%;flex:none;background:var(--danger)}
+#verdict .vt{font-size:1rem;font-weight:700;letter-spacing:.1em}
+#verdict .vd{font-size:.71rem;color:var(--dim);flex:1;min-width:180px;line-height:1.4}
+#verdict .stages{display:flex;gap:3px;margin-top:8px}
+#verdict .sg{flex:1;text-align:center;font-size:.58rem;letter-spacing:.06em;padding:3px 2px;border-radius:4px;
+  background:var(--panel);color:var(--faint);border:1px solid var(--line)}
+#verdict .sg.on{color:#0C1220;font-weight:700}
+/* stage colors */
+.stage-no .lamp{background:var(--danger);box-shadow:0 0 10px var(--danger)}
+.stage-no .vt{color:var(--danger)}
+.stage-watch .lamp{background:var(--hold);box-shadow:0 0 10px var(--hold)}
+.stage-watch .vt{color:var(--hold)}
+.stage-plan .lamp{background:var(--plan);box-shadow:0 0 10px var(--plan)}
+.stage-plan .vt{color:var(--plan)}
+.stage-order .lamp{background:var(--go);box-shadow:0 0 12px var(--go)}
+.stage-order .vt{color:var(--go)}
+.sg.no.on{background:var(--danger)}.sg.watch.on{background:var(--hold)}.sg.plan.on{background:var(--plan)}.sg.order.on{background:var(--go)}
+
+@media(max-width:560px){
+  body{padding-bottom:130px}
+  .wrap{padding:0 8px}
+  h1{font-size:.98rem;line-height:1.35}
+  h1 small{display:block;margin-left:0;margin-top:2px}
+  .header-row{gap:8px}
+  .ticket{width:100%}
+  .ticket input{flex:1;width:auto;min-width:0}
+  .card{padding:11px 12px}
+  /* tabs: horizontal scroll, don't cram 6 across */
+  nav{gap:4px;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .tab{flex:0 0 auto;min-width:82px;padding:8px 10px;font-size:.75rem}
+  .tab .n{font-size:.54rem}
+  /* pills full-tap targets */
+  .pills{gap:6px}
+  .pill{flex:1 1 calc(50% - 3px);text-align:center;padding:9px 8px}
+  .q{padding:9px 6px}
+  .q .qt{font-size:.84rem}
+  .kata-grid{grid-template-columns:1fr 1fr;gap:6px}
+  .kbtn{padding:10px 9px}
+  .pform{grid-template-columns:1fr}
+  .rrbox{gap:10px 16px;font-size:.78rem}
+  .meter{gap:10px;padding:11px}
+  .meter .score{font-size:1.3rem;min-width:72px}
+  /* verdict bar: stack for small screens */
+  #verdict .inner{padding:9px 12px}
+  #verdict .vtop{gap:8px}
+  #verdict .vt{font-size:.92rem}
+  #verdict .vd{min-width:100%;order:3;font-size:.7rem}
+  #verdict .vtop button{order:2;margin-left:auto}
+  #verdict .stages{gap:2px;margin-top:6px}
+  #verdict .sg{font-size:.52rem;padding:3px 1px;letter-spacing:.02em}
+  /* trade log rows */
+  .logrow{grid-template-columns:1fr auto}
+  .toolbar button{flex:1 1 auto}
+}
+@media(max-width:380px){
+  .pill{flex:1 1 100%}
+  .kata-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="header-row">
+    <div>
+      <div class="eyebrow">Expected-Value Filter — v2</div>
+      <h1>EDGE CHECKER<small>勝ち銘柄を探すのではなく、悪いトレードを止める</small></h1>
+    </div>
+    <div class="ticket">
+      <input id="symbol" type="text" placeholder="銘柄コード / 銘柄名" aria-label="銘柄">
+      <button class="btn-reset" id="resetBtn">新規トレード</button>
+    </div>
+  </div>
+</header>
+
+<div class="ctxbar" id="ctxbar" hidden>
+  <span class="cl">CALENDAR →</span>
+  <span id="ctxText"></span>
+</div>
+
+<nav role="tablist">
+  <button class="tab on" data-tab="t1"><span class="n">01 / INVENTORY</span>棚卸し9問</button>
+  <button class="tab" data-tab="t2"><span class="n">02 / PLAYBOOK</span>型チェック</button>
+  <button class="tab" data-tab="t3"><span class="n">03 / REVERSAL</span>リバ判定</button>
+  <button class="tab" data-tab="t5"><span class="n">04 / PLAN</span>売買計画</button>
+  <button class="tab" data-tab="t4"><span class="n">05 / REFERENCE</span>早見表</button>
+  <button class="tab" data-tab="t6"><span class="n">06 / LOG</span>記録</button>
+</nav>
+
+<!-- TAB1 -->
+<section id="t1" class="on">
+  <div class="card">
+    <h2>エッジの種類<span class="tag">EDGE TYPE</span></h2>
+    <div class="hint"><b>Structural / Behavioral / Information のうち最低1つが必須。</b>Executionは加点であって単独ではGO不可（＝損切りが近いだけでは買う理由にならない）。</div>
+    <div class="pills" id="edgePills">
+      <button class="pill" data-v="S">Structural<span class="sub">制度・需給の歪み</span></button>
+      <button class="pill" data-v="B">Behavioral<span class="sub">狼狽・過剰反応</span></button>
+      <button class="pill" data-v="I">Information<span class="sub">情報の深さ</span></button>
+      <button class="pill exec" data-v="E">Execution<span class="sub">位置取り（加点のみ）</span></button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>棚卸し9問<span class="tag">ALL 9 REQUIRED</span></h2>
+    <div class="hint">説明できる項目だけチェック。答えられない問いが1つでもあれば見送りでよい。</div>
+    <div id="q9"></div>
+  </div>
+  <div class="card">
+    <h2>共通レッドフラグ<span class="tag">ANY = NO TRADE</span></h2>
+    <div class="hint">1つでも該当したら、他がどれだけ揃っていても<b>強制見送り(NO TRADE)</b>。</div>
+    <div id="redflags"></div>
+  </div>
+</section>
+
+<!-- TAB2 -->
+<section id="t2">
+  <div class="kata-grid" id="kataGrid"></div>
+  <div id="kataDetail"></div>
+</section>
+
+<!-- TAB3 -->
+<section id="t3">
+  <div class="card">
+    <h2>狙いやすい下げ<span class="tag">+1 EACH ／ 3つ以上でリバ可</span></h2>
+    <div class="hint">「下がったから買う」ではなく、売られた理由と下げ幅のバランスが崩れているか。</div>
+    <div id="rvGood"></div>
+  </div>
+  <div class="card">
+    <h2>狙いにくい下げ<span class="tag">ANY = 強制見送り</span></h2>
+    <div class="hint">1つでも該当したらリバではなくファンダ悪化の疑い。<b>減点ではなく強制見送り。</b></div>
+    <div id="rvBad"></div>
+  </div>
+  <div class="card">
+    <div class="meter">
+      <div class="score" id="rvScore">—</div>
+      <div class="desc" id="rvDesc">チェックすると判定が出ます。</div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB5 PLAN -->
+<section id="t5">
+  <div class="card">
+    <h2>売買計画<span class="tag">TRADE PLAN</span></h2>
+    <div class="hint">エントリー・損切り・利確を数値で決めると、R/Rが自動計算される。<b>R/R≥1.5、損切りあり、無効化条件あり</b>でPLAN READYに進む。</div>
+    <div class="pform">
+      <div class="pf"><label>ENTRY 想定エントリー価格</label><input id="p_entry" type="number" inputmode="decimal" placeholder="例 1250"></div>
+      <div class="pf"><label>指値位置（根拠）</label><input id="p_limit" type="text" placeholder="前日安値/VWAP/出来高帯 等"></div>
+      <div class="pf"><label>STOP 損切り価格</label><input id="p_stop" type="number" inputmode="decimal" placeholder="例 1225"></div>
+      <div class="pf"><label>TP1 第1利確</label><input id="p_tp1" type="number" inputmode="decimal" placeholder="例 1300"></div>
+      <div class="pf"><label>TP2 第2利確（任意）</label><input id="p_tp2" type="number" inputmode="decimal" placeholder="例 1350"></div>
+      <div class="pf"><label>許容損失額（円）</label><input id="p_risk" type="number" inputmode="decimal" placeholder="例 20000"></div>
+    </div>
+    <div class="rrbox" id="rrbox">
+      <span><b>R/R:</b> <span class="rv" id="rr_val">—</span></span>
+      <span><b>損切り幅:</b> <span id="rr_stop">—</span></span>
+      <span><b>推奨株数:</b> <span id="rr_size">—</span></span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>撤退条件<span class="tag">EXIT / INVALIDATION</span></h2>
+    <div class="hint">「いつ諦めるか」を先に決める。これが無いとだらだら保有になる。</div>
+    <div class="pform">
+      <div class="pf full"><label>時間切れ撤退（保有期限）</label><input id="p_timeexit" type="text" placeholder="例：イベント通過後5営業日で伸びなければ撤退"></div>
+      <div class="pf full"><label>無効化条件（これが起きたら撤退）</label><textarea id="p_invalid" placeholder="例：VWAP回復できない／対象テーマがTOPIX相対で下位に落ちる／下値切り下げ継続"></textarea></div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="primary" id="saveTradeBtn">この計画を記録に保存</button>
+  </div>
+</section>
+
+<!-- TAB4 REFERENCE -->
+<section id="t4">
+  <div class="card ref">
+    <h2>4段階判定の意味</h2>
+    <table>
+      <tr><td>NO TRADE</td><td>見送り。エッジがExecutionだけ／レッドフラグ該当／損切り不明／R/R&lt;1.5 など。<span class="dim">悪いトレードを止めるのが本来の役割。ここで止まるのは成功。</span></td></tr>
+      <tr><td>WATCH</td><td>エッジはあるが、まだ価格が来ていない・確認条件待ち。監視対象。</td></tr>
+      <tr><td>PLAN READY</td><td>エッジ・相手・期限・損切り・無効化条件が揃い、R/R≥1.5。売買計画は成立。ただし注文条件は未達。</td></tr>
+      <tr><td>ORDER READY</td><td>PLAN READY＋予定価格に到達＋板/VWAP/出来高の確認条件を満たす。ここで初めて注文してよい。</td></tr>
+    </table>
+  </div>
+  <div class="card ref">
+    <h2>Structural 5点確認</h2>
+    <table>
+      <tr><td>① 相手</td><td>買い手・売り手は誰か（再投資／パッシブ／投信／投げ／リスク削減）</td></tr>
+      <tr><td>② 時期</td><td>なぜ今か（月初・月末・四半期初・権利日・SQ・年末・新年度）</td></tr>
+      <tr><td>③ 期限</td><td>いつ終わるか。Structuralは期限付きの歪み</td></tr>
+      <tr><td>④ 銘柄</td><td>機関需給→大型株／個人・短期需給→小型・材料株</td></tr>
+      <tr><td>⑤ 確認</td><td>TOPIX相対・Breadth・出来高・1銘柄だけでないか・高値掴みでないか</td></tr>
+    </table>
+  </div>
+  <div class="card ref">
+    <h2>指値を置く候補（Execution）</h2>
+    <table>
+      <tr><td>価格帯</td><td>前回安値／出来高の多い価格帯／節目／ギャップ半値／VWAP乖離</td></tr>
+      <tr><td>板・足</td><td>板の厚いところ／当日安値更新後の戻り／5分・15分足の下げ止まり</td></tr>
+      <tr><td>原則</td><td class="dim">仮説が崩れない範囲で最も有利な価格＝損切りが近い場所で待つ</td></tr>
+    </table>
+  </div>
+  <div class="card ref">
+    <h2>上手い人の6原則</h2>
+    <table>
+      <tr><td>① 状況を選ぶ</td><td>毎日やらない。エッジがある日だけ</td></tr>
+      <tr><td>② 相手を想定</td><td>誰の売りを拾い、誰の買いに乗り、誰が踏まれるか</td></tr>
+      <tr><td>③ 価格に固執</td><td>銘柄より価格。良い銘柄でも悪い価格では買わない</td></tr>
+      <tr><td>④ 損切りが近い</td><td>入る前に「間違いが分かる場所」を決める</td></tr>
+      <tr><td>⑤ 利確は早く</td><td>Structural/Reversalはエッジの寿命が短い</td></tr>
+      <tr><td>⑥ 型を守る</td><td>自分の得意な歪みだけ取る</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- TAB6 LOG -->
+<section id="t6">
+  <div class="card">
+    <h2>トレード記録<span class="tag">TRADE LOG</span></h2>
+    <div class="hint">売買計画タブで保存したトレードが溜まる。結果を入れて後から集計すると、自分の得意な型が分かる。</div>
+    <div id="logList"></div>
+    <div class="stats" id="logStats"></div>
+    <div class="toolbar">
+      <button id="exportLog">JSONで書き出し</button>
+      <button id="clearLog">全消去</button>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- verdict -->
+<div id="verdict" class="stage-no" role="status">
+  <div class="inner">
+    <div class="vtop">
+      <div class="lamp"></div>
+      <div class="vt" id="vTitle">NO TRADE</div>
+      <div class="vd" id="vDesc">エッジ種類を選び、9問に答え、レッドフラグを確認してください。</div>
+    </div>
+    <div class="stages">
+      <div class="sg no" data-s="no">NO TRADE</div>
+      <div class="sg watch" data-s="watch">WATCH</div>
+      <div class="sg plan" data-s="plan">PLAN READY</div>
+      <div class="sg order" data-s="order">ORDER READY</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var LS_STATE='edgeChecker_v2_state';
+var LS_LOG='edgeChecker_v2_log';
+var state=load(LS_STATE)||{};
+var log=load(LS_LOG)||[];
+function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function save(){try{localStorage.setItem(LS_STATE,JSON.stringify(state))}catch(e){}}
+function saveLog(){try{localStorage.setItem(LS_LOG,JSON.stringify(log))}catch(e){}}
+
+/* ---- calendar URL params intake ---- */
+// ?ev=ID&type=Structural,Behavioral&kata=A→B&phase=post&theme=bank,semi_large&bias=long_post&sym=8306
+var params=new URLSearchParams(location.search);
+var CTX={};
+['ev','type','kata','phase','theme','bias','sym','title'].forEach(function(k){if(params.get(k))CTX[k]=params.get(k)});
+if(Object.keys(CTX).length){
+  var parts=[];
+  if(CTX.title)parts.push('<b>'+CTX.title+'</b>');
+  if(CTX.phase)parts.push('phase: '+CTX.phase);
+  if(CTX.kata)parts.push('型: '+CTX.kata);
+  if(CTX.bias)parts.push('bias: '+CTX.bias);
+  if(CTX.theme)parts.push('theme: '+CTX.theme);
+  document.getElementById('ctxbar').hidden=false;
+  document.getElementById('ctxText').innerHTML=parts.join('　｜　')+'<br><span style="color:var(--dim);font-size:.72rem">※プリセットは参考。GO判定は自分で相手・価格・レッドフラグを確認</span>';
+  // preset symbol
+  if(CTX.sym&&!state.symbol)state.symbol=CTX.sym;
+  // preset edge types
+  if(CTX.type&&!state._ctxApplied){
+    CTX.type.split(',').forEach(function(t){
+      var m={Structural:'S',Behavioral:'B',Information:'I',Execution:'E'}[t.trim()];
+      if(m)state['edge_'+m]=true;
+    });
+    state._ctxApplied=true;save();
+  }
+}
+
+/* ---- data ---- */
+var Q9=[
+ {t:'このトレードのエッジは何か？',s:'一文で言えるか'},
+ {t:'エッジの種類はどれか？',s:'S/B/I のどれか（上のピルで選択）'},
+ {t:'相手は誰か？',s:'誰の売りを拾うのか。誰の買いに乗るのか'},
+ {t:'なぜ相手は不利な価格で売買しているのか？',s:'制度・期限・恐怖・焦り・追証'},
+ {t:'自分はどの時間軸で優位なのか？',s:'個人の主戦場は中速（数十分〜10営業日）'},
+ {t:'なぜ今なのか？',s:'時期を特定できないエッジは弱い'},
+ {t:'いつエッジは消えるのか？',s:'エッジは期限付き。出口の時期を先に決める'},
+ {t:'どこで入れば損切りが近いのか？',s:'入る価格・損切り・利確を同時に設計'},
+ {t:'期待リターンは損失リスクに見合うのか？',s:'R/Rが事前に見えているか（売買計画タブ）'}
+];
+var REDFLAGS=[
+ 'エッジがExecutionだけ（S/B/Iがない）',
+ '相手が説明できない',
+ 'なぜ今かが説明できない',
+ 'エッジの期限が不明',
+ '損切り位置が遠い／不明',
+ 'R/R < 1.5',
+ '決算跨ぎになる',
+ '流動性が低い／スプレッドが広い',
+ 'イベントが既に終了している（後追い）',
+ '高値追いで損切り位置が遠い',
+ '1銘柄だけの個別材料をテーマと誤認'
+];
+var KATA=[
+ {id:'A',name:'Structural Event型',desc:'制度・需給イベントを取る',period:'保有 1〜5営業日（最大10）',
+  checks:['対象テーマを事前に決めた','当日TOPIX相対で実際に強い','Breadthが高い','過熱していない銘柄を選んだ','イベント終了前後の利確計画がある'],
+  fails:['すでに織り込み済み','イベント後に逆回転','1銘柄だけ強くテーマではない','高値で追いかける']},
+ {id:'B',name:'Behavioral Reversal型',desc:'狼狽売り・過剰反応のリバを取る',period:'保有 数十分〜3営業日（強ければ5）',
+  checks:['悪材料の本質を読んだ','下げが本質価値の低下より過剰','投げの出来高を確認','下値固めを待った','指値で拾う計画がある'],
+  fails:['本当に悪い材料だった','投げがまだ終わっていない','地合いが悪すぎる','流動性が低い','損切りが遅れる']},
+ {id:'C',name:'Theme Propagation型',desc:'テーマ内の波及・出遅れを取る',period:'保有 2〜10営業日',
+  checks:['リーダー銘柄が動いた','親テーマ全体に広がっている','子テーマ内の出遅れ代表を特定','まだ過熱していない'],
+  fails:['リーダー1社だけの固有材料','2番手に波及しない','親テーマ自体が弱い','出遅れではなく単に弱い銘柄']},
+ {id:'D',name:'Defensive Rotation型',desc:'地合い悪化時の資金退避先を取る',period:'保有 3〜20営業日',
+  checks:['指数が弱いことを確認','一部テーマがTOPIX相対で強い','相対強度が高いテーマだけ買う','必要なら指数ヘッジを検討'],
+  fails:['全面安に巻き込まれる','ディフェンシブも遅れて売られる','すでに高値圏','指数反発でグロースに資金が戻る']}
+];
+var RV_GOOD=['悪材料が一過性','業績への影響が限定的','同業まで連れ安している','地合い悪化と重なって投げが出た','需給要因で売られている','出来高急増で投げが出切りつつある','下値が固まり始めている','VWAPを回復した','売り板が薄くなり買い板が厚くなった'];
+var RV_BAD=['ガイダンス大幅下方修正','競争環境の悪化','事業モデル自体が疑われる','財務リスクがある','希薄化・増資・不正・訴訟','下げても出来高が細い','下値を切り下げ続けている'];
+
+/* ---- helpers ---- */
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+function qItem(o){
+  var lab=el('label','q'+(o.flag?' flag':''));
+  var cb=el('input');cb.type='checkbox';cb.checked=!!state[o.key];
+  if(cb.checked)lab.classList.add('checked');
+  var body=el('div','qbody');
+  if(o.num)body.appendChild(el('div','qn',o.num));
+  body.appendChild(el('div','qt',o.title));
+  if(o.sub)body.appendChild(el('div','qs',o.sub));
+  if(o.memo){
+    var ta=el('textarea');ta.placeholder='根拠メモ（任意）';ta.value=state[o.key+'_m']||'';
+    ta.addEventListener('input',function(){state[o.key+'_m']=ta.value;save()});
+    ta.addEventListener('click',function(e){e.preventDefault();e.stopPropagation()});
+    body.appendChild(ta);
+  }
+  cb.addEventListener('change',function(){state[o.key]=cb.checked;lab.classList.toggle('checked',cb.checked);save();update()});
+  lab.appendChild(cb);lab.appendChild(body);
+  return lab;
+}
+
+/* ---- tab1 ---- */
+var q9box=document.getElementById('q9');
+Q9.forEach(function(q,i){q9box.appendChild(qItem({key:'q'+i,num:'Q'+(i+1),title:q.t,sub:q.s,memo:true}))});
+var rfbox=document.getElementById('redflags');
+REDFLAGS.forEach(function(t,i){rfbox.appendChild(qItem({key:'rf'+i,title:t,flag:true}))});
+document.querySelectorAll('#edgePills .pill').forEach(function(pl){
+  var k='edge_'+pl.dataset.v;
+  if(state[k])pl.classList.add('on');
+  pl.addEventListener('click',function(){state[k]=!state[k];pl.classList.toggle('on',state[k]);save();update()});
+});
+
+/* ---- tab2 ---- */
+var grid=document.getElementById('kataGrid'),detail=document.getElementById('kataDetail');
+KATA.forEach(function(k){
+  var b=el('button','kbtn');b.dataset.id=k.id;
+  b.appendChild(el('div','kl','TYPE '+k.id));
+  b.appendChild(el('div','kt',k.name));
+  b.appendChild(el('div','kd',k.desc));
+  b.addEventListener('click',function(){state.kata=k.id;save();renderKata()});
+  grid.appendChild(b);
+});
+// preset kata from calendar
+if(CTX.kata&&!state.kata){var kk=CTX.kata.charAt(0);if('ABCD'.indexOf(kk)>=0)state.kata=kk;}
+function renderKata(){
+  var id=state.kata||'A';
+  grid.querySelectorAll('.kbtn').forEach(function(b){b.classList.toggle('on',b.dataset.id===id)});
+  var k=KATA.filter(function(x){return x.id===id})[0];
+  detail.innerHTML='';
+  var c=el('div','card');
+  c.appendChild(el('h2',null,k.name+'<span class="tag">ENTRY CHECK</span>'));
+  c.appendChild(el('div','period',k.period));
+  k.checks.forEach(function(t,i){c.appendChild(qItem({key:'k'+k.id+'_'+i,title:t}))});
+  var f=el('div','fail');f.appendChild(el('h3',null,'⚠ 失敗パターン — 該当したら降りる'));
+  var ul=el('ul');k.fails.forEach(function(t){ul.appendChild(el('li',null,t))});
+  f.appendChild(ul);c.appendChild(f);detail.appendChild(c);
+}
+renderKata();
+
+/* ---- tab3 ---- */
+var g=document.getElementById('rvGood'),bd=document.getElementById('rvBad');
+RV_GOOD.forEach(function(t,i){g.appendChild(qItem({key:'rvg'+i,title:t}))});
+RV_BAD.forEach(function(t,i){bd.appendChild(qItem({key:'rvb'+i,title:t,flag:true}))});
+function rvState(){
+  var good=RV_GOOD.reduce(function(a,_,i){return a+(state['rvg'+i]?1:0)},0);
+  var bad=RV_BAD.reduce(function(a,_,i){return a+(state['rvb'+i]?1:0)},0);
+  return{good:good,bad:bad};
+}
+function updateRv(){
+  var s=rvState(),sc=document.getElementById('rvScore'),ds=document.getElementById('rvDesc');
+  if(s.good===0&&s.bad===0){sc.textContent='—';sc.style.color='';ds.textContent='チェックすると判定が出ます。';return}
+  sc.textContent='+'+s.good+' / −'+s.bad;
+  if(s.bad>0){sc.style.color='var(--danger)';ds.textContent='レッドフラグ '+s.bad+'件。ファンダ悪化の疑い。リバではない。強制見送り。'}
+  else if(s.good>=3){sc.style.color='var(--go)';ds.textContent='リバ可の下限クリア（狙いやすい下げ3つ以上・レッドフラグ0）。下値固め＋損切りの近い指値を設計。'}
+  else{sc.style.color='var(--hold)';ds.textContent='根拠が薄い（狙いやすい下げ3つ未満）。「下がったから買う」になっていないか。'}
+}
+
+/* ---- tab5 plan ---- */
+var pIds=['p_entry','p_limit','p_stop','p_tp1','p_tp2','p_risk','p_timeexit','p_invalid'];
+pIds.forEach(function(id){
+  var e=document.getElementById(id);if(!e)return;
+  if(state[id]!=null)e.value=state[id];
+  e.addEventListener('input',function(){state[id]=e.value;save();updateRR();update()});
+});
+function num(id){var v=parseFloat(state[id]);return isFinite(v)?v:null}
+function computeRR(){
+  var entry=num('p_entry'),stop=num('p_stop'),tp1=num('p_tp1'),risk=num('p_risk');
+  if(entry==null||stop==null||tp1==null)return null;
+  var stopDist=Math.abs(entry-stop),reward=Math.abs(tp1-entry);
+  if(stopDist<=0)return null;
+  var rr=reward/stopDist;
+  var size=(risk!=null&&stopDist>0)?Math.floor(risk/stopDist):null;
+  return{rr:rr,stopDist:stopDist,size:size};
+}
+function updateRR(){
+  var r=computeRR();
+  var rv=document.getElementById('rr_val'),rs=document.getElementById('rr_stop'),rz=document.getElementById('rr_size');
+  if(!r){rv.textContent='—';rv.className='rv';rs.textContent='—';rz.textContent='—';return}
+  rv.textContent=r.rr.toFixed(2);rv.className='rv'+(r.rr<1.5?' bad':'');
+  rs.textContent=r.stopDist.toFixed(1);
+  rz.textContent=r.size!=null?(r.size+' 株'):'—（許容損失を入力）';
+}
+updateRR();
+
+document.getElementById('saveTradeBtn').addEventListener('click',function(){
+  var edges=['S','B','I','E'].filter(function(v){return state['edge_'+v]});
+  var r=computeRR();
+  var entry={
+    ts:Date.now(),
+    date:new Date().toISOString().slice(0,10),
+    symbol:state.symbol||'',
+    edges:edges.join('+'),
+    kata:state.kata||'',
+    verdict:currentStage.label,
+    entry:state.p_entry||'',stop:state.p_stop||'',tp1:state.p_tp1||'',tp2:state.p_tp2||'',
+    rr:r?r.rr.toFixed(2):'',
+    timeexit:state.p_timeexit||'',invalid:state.p_invalid||'',
+    result:'',pnlR:''
+  };
+  log.unshift(entry);saveLog();renderLog();
+  document.querySelector('.tab[data-tab="t6"]').click();
+});
+
+/* ---- tab6 log ---- */
+function renderLog(){
+  var box=document.getElementById('logList');
+  if(!log.length){box.innerHTML='<div class="logempty">まだ記録がありません。売買計画タブで保存すると溜まります。</div>';document.getElementById('logStats').innerHTML='';return}
+  box.innerHTML='';
+  log.forEach(function(e,i){
+    var row=el('div','logrow');
+    var left=el('div');
+    left.appendChild(el('div','lt',(e.symbol||'(銘柄未入力)')+' ｜ '+(e.edges||'-')+' ｜ 型'+(e.kata||'-')+' ｜ '+e.verdict));
+    var meta=e.date+'  entry '+(e.entry||'-')+' / stop '+(e.stop||'-')+' / R/R '+(e.rr||'-');
+    left.appendChild(el('div','lm',meta));
+    // result inputs
+    var rline=el('div','lm');
+    rline.innerHTML='結果: ';
+    ['win','lose','even'].forEach(function(res){
+      var b=el('button');b.textContent={win:'勝',lose:'負',even:'分'}[res];
+      b.style.cssText='background:'+(e.result===res?'var(--go)':'transparent')+';border:1px solid var(--line);color:'+(e.result===res?'#0C1220':'var(--dim)')+';border-radius:4px;padding:1px 8px;margin-right:4px;cursor:pointer;font-family:var(--mono);font-size:.68rem';
+      b.addEventListener('click',function(){e.result=(e.result===res?'':res);saveLog();renderLog()});
+      rline.appendChild(b);
+    });
+    var rin=el('input');rin.type='text';rin.placeholder='損益R';rin.value=e.pnlR||'';
+    rin.style.cssText='background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:4px;padding:1px 6px;width:64px;font-family:var(--mono);font-size:.68rem;margin-left:6px';
+    rin.addEventListener('input',function(){e.pnlR=rin.value;saveLog();updateStats()});
+    rline.appendChild(rin);
+    left.appendChild(rline);
+    row.appendChild(left);
+    var del=el('button','del','✕');del.title='削除';
+    del.addEventListener('click',function(){log.splice(i,1);saveLog();renderLog()});
+    row.appendChild(del);
+    box.appendChild(row);
+  });
+  updateStats();
+}
+function updateStats(){
+  var st=document.getElementById('logStats');
+  if(!log.length){st.innerHTML='';return}
+  var byKata={},byEdge={},wins=0,losses=0,execOnly=0,execOnlyLoss=0,rSum=0,rN=0;
+  log.forEach(function(e){
+    if(e.result==='win')wins++;else if(e.result==='lose')losses++;
+    var isExecOnly=(e.edges==='E');
+    if(isExecOnly){execOnly++;if(e.result==='lose')execOnlyLoss++;}
+    (e.kata||'-').split('').forEach(function(){});
+    var kk=e.kata||'-';byKata[kk]=byKata[kk]||{w:0,l:0};
+    if(e.result==='win')byKata[kk].w++;if(e.result==='lose')byKata[kk].l++;
+    var r=parseFloat(e.pnlR);if(isFinite(r)){rSum+=r;rN++;}
+  });
+  var lines=[];
+  lines.push('総数 <b>'+log.length+'</b>　勝 <b>'+wins+'</b> / 負 <b>'+losses+'</b>'+(wins+losses>0?'（勝率 <b>'+Math.round(wins/(wins+losses)*100)+'%</b>）':''));
+  if(rN)lines.push('記録済みR合計 <b>'+rSum.toFixed(1)+'R</b>　平均 <b>'+(rSum/rN).toFixed(2)+'R</b>');
+  var kataLine=Object.keys(byKata).filter(function(k){return k!=='-'}).map(function(k){return '型'+k+' '+byKata[k].w+'勝'+byKata[k].l+'敗'}).join('　');
+  if(kataLine)lines.push(kataLine);
+  if(execOnly)lines.push('<span style="color:var(--danger)">Executionだけのトレード '+execOnly+'件（うち負け '+execOnlyLoss+'）— 本来これは0にしたい</span>');
+  st.innerHTML=lines.join('<br>');
+}
+document.getElementById('exportLog').addEventListener('click',function(){
+  var blob=new Blob([JSON.stringify(log,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='edge_checker_tradelog.json';a.click();
+});
+document.getElementById('clearLog').addEventListener('click',function(){
+  if(!confirm('トレード記録をすべて消去します。よろしいですか？'))return;
+  log=[];saveLog();renderLog();
+});
+renderLog();
+
+/* ---- 4-STAGE VERDICT ---- */
+var currentStage={label:'NO TRADE'};
+function update(){
+  var n=Q9.reduce(function(a,_,i){return a+(state['q'+i]?1:0)},0);
+  var edges=['S','B','I','E'].filter(function(v){return state['edge_'+v]});
+  var coreEdges=edges.filter(function(e){return e!=='E'}); // S/B/I
+  var redN=REDFLAGS.reduce(function(a,_,i){return a+(state['rf'+i]?1:0)},0);
+  var rv=rvState();
+  var r=computeRR();
+  var hasStop=(state.p_stop!=null&&state.p_stop!=='');
+  var hasInvalid=(state.p_invalid&&state.p_invalid.trim())||(state.p_timeexit&&state.p_timeexit.trim());
+  var rrOk=r&&r.rr>=1.5;
+
+  var stage='no',reasons=[];
+
+  // NO TRADE conditions (any)
+  if(coreEdges.length===0)reasons.push('S/B/Iのエッジが無い'+(edges.indexOf('E')>=0?'（Executionだけ）':''));
+  if(redN>0)reasons.push('共通レッドフラグ '+redN+'件');
+  if(rv.bad>0)reasons.push('リバのレッドフラグ '+rv.bad+'件');
+  if(r&&r.rr<1.5)reasons.push('R/R<1.5');
+
+  if(reasons.length){
+    stage='no';
+  } else if(coreEdges.length>=1 && n===9){
+    // enough edge + all questions answered → at least PLAN track
+    if(hasStop && rrOk && hasInvalid){
+      // PLAN READY vs ORDER READY: order requires explicit confirmation checkbox-equivalent
+      stage=state.order_ready?'order':'plan';
+    } else {
+      stage='watch'; // edge present but plan incomplete
+    }
+  } else if(coreEdges.length>=1){
+    stage='watch'; // edge present, but 9問未完
+  } else {
+    stage='no';
+  }
+
+  // apply UI
+  var v=document.getElementById('verdict');
+  v.className='stage-'+stage;
+  var titles={no:'NO TRADE',watch:'WATCH',plan:'PLAN READY',order:'ORDER READY'};
+  currentStage.label=titles[stage];
+  document.getElementById('vTitle').textContent=titles[stage];
+  v.querySelectorAll('.sg').forEach(function(sg){sg.classList.toggle('on',sg.dataset.s===stage)});
+
+  var vd=document.getElementById('vDesc');
+  if(stage==='no'){
+    vd.textContent='見送り: '+reasons.join('／')+'。悪いトレードを止めるのが役割。ここで止まるのは正しい。';
+  } else if(stage==='watch'){
+    var need=[];
+    if(n<9)need.push('9問の未回答 '+(9-n)+'問');
+    if(!hasStop)need.push('損切り価格');
+    if(!rrOk)need.push('R/R≥1.5');
+    if(!hasInvalid)need.push('撤退/無効化条件');
+    vd.textContent='監視: エッジ['+coreEdges.join('+')+(edges.indexOf('E')>=0?'+E':'')+']あり。あと '+(need.join('・')||'価格到達')+' で計画成立。';
+  } else if(stage==='plan'){
+    vd.innerHTML='計画成立: エッジ['+coreEdges.join('+')+(edges.indexOf('E')>=0?'+E':'')+']・R/R'+(r?r.rr.toFixed(2):'')+'・損切り・撤退条件OK。<b>予定価格に到達し板/VWAP/出来高を確認できたら↓</b>';
+    ensureOrderToggle(true);
+    return;
+  } else if(stage==='order'){
+    vd.textContent='注文可: 計画・価格・確認条件すべて充足。指値位置＝損切りが近い場所で執行。';
+  }
+  ensureOrderToggle(stage==='plan'||stage==='order');
+  updateRv();
+}
+
+// dynamic ORDER READY confirm toggle in verdict bar
+var orderToggle=null;
+function ensureOrderToggle(show){
+  var top=document.querySelector('#verdict .vtop');
+  if(show){
+    if(!orderToggle){
+      orderToggle=el('button',null,state.order_ready?'✓ 価格到達・確認済':'価格到達を確認');
+      orderToggle.style.cssText='background:'+(state.order_ready?'var(--go)':'transparent')+';border:1px solid var(--go);color:'+(state.order_ready?'#0C1220':'var(--go)')+';border-radius:6px;padding:5px 12px;font-size:.72rem;cursor:pointer;font-family:var(--sans);white-space:nowrap';
+      orderToggle.addEventListener('click',function(){state.order_ready=!state.order_ready;save();update();});
+      top.appendChild(orderToggle);
+    } else {
+      orderToggle.textContent=state.order_ready?'✓ 価格到達・確認済':'価格到達を確認';
+      orderToggle.style.background=state.order_ready?'var(--go)':'transparent';
+      orderToggle.style.color=state.order_ready?'#0C1220':'var(--go)';
+      orderToggle.style.display='';
+    }
+  } else if(orderToggle){orderToggle.style.display='none';}
+}
+
+/* ---- tabs ---- */
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('section').forEach(function(x){x.classList.remove('on')});
+    t.classList.add('on');document.getElementById(t.dataset.tab).classList.add('on');
+    state.tab=t.dataset.tab;save();
+  });
+  if(state.tab&&t.dataset.tab===state.tab)t.click();
+});
+
+/* ---- symbol + reset ---- */
+var sym=document.getElementById('symbol');
+sym.value=state.symbol||'';
+sym.addEventListener('input',function(){state.symbol=sym.value;save()});
+document.getElementById('resetBtn').addEventListener('click',function(){
+  if(!confirm('チェック状態・メモ・売買計画をクリアします（トレード記録は残ります）。よろしいですか？'))return;
+  var keepTab=state.tab;state={tab:keepTab};save();location.href=location.pathname; // drop URL params too
+});
+
+update();
+})();
+</script>
+</body>
+</html>

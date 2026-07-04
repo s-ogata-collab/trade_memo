@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0C1220">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Edge Radar">
+<title>需給イベントカレンダー v3｜STRUCTURAL EDGE RADAR 2026H2</title>
+<style>
+:root{
+  --bg:#0C1220; --panel:#131C2E; --panel2:#182338; --line:#25314A;
+  --ink:#D9E2F0; --dim:#7C8AA5; --faint:#4A5670;
+  --blue:#5B9BD5; --blue-deep:#2E74B5; --amber:#E8913A; --amber-deep:#C55A11;
+  --go:#3FB6A8; --danger:#E05C5C; --violet:#9B8CDB;
+  --mono:"Consolas","SF Mono","Cascadia Code",monospace;
+  --sans:"Yu Gothic UI","Yu Gothic","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.65;padding-bottom:40px;
+  padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,.012) 2px 4px)}
+.wrap{max-width:940px;margin:0 auto;padding:0 16px;position:relative;z-index:1}
+
+header{border-bottom:1px solid var(--line);padding:18px 0 14px;margin-bottom:14px;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.22em;color:var(--blue);text-transform:uppercase}
+h1{font-size:1.15rem;font-weight:700;letter-spacing:.04em;margin-top:2px}
+h1 small{color:var(--dim);font-weight:400;font-size:.76rem;margin-left:.6em}
+.today{font-family:var(--mono);font-size:.75rem;color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:6px 12px}
+.today b{color:var(--go)}
+
+.tpanel{border-radius:12px;padding:12px 16px;margin-bottom:10px}
+#actionPanel{border:1px solid var(--go);background:linear-gradient(180deg,var(--panel2),var(--panel))}
+#dontPanel{border:1px solid var(--danger);background:var(--panel)}
+.tp-label{font-family:var(--mono);font-size:.66rem;letter-spacing:.22em}
+#actionPanel .tp-label{color:var(--go)}
+#dontPanel .tp-label{color:var(--danger)}
+.ap-item{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid rgba(37,49,74,.6)}
+.ap-item:last-child{border-bottom:none;padding-bottom:0}
+.ap-phase{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;padding-top:3px}
+.ap-phase.pre{color:var(--blue)}.ap-phase.day{color:var(--amber)}.ap-phase.post{color:var(--go)}
+.ap-t{font-size:.86rem;font-weight:700}
+.ap-a{font-size:.8rem;color:var(--dim)}
+.dont-list{display:flex;flex-direction:column;gap:5px;margin-top:5px}
+.dont-item{font-size:.82rem;color:var(--ink)}
+.dont-item b{color:var(--danger);font-family:var(--mono);font-size:.72rem;margin-right:6px}
+#nextup{border:1px solid var(--blue-deep);background:var(--panel);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+#nextup .nu-label{font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;color:var(--blue)}
+.nu-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:3px}
+.nu-count{font-family:var(--mono);font-size:1.3rem;font-weight:700;color:var(--blue);white-space:nowrap}
+.nu-title{font-size:.95rem;font-weight:700}
+
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:999px;
+  padding:5px 13px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.chip.on{background:var(--blue-deep);border-color:var(--blue);color:#fff}
+.chip:focus-visible{outline:2px solid var(--blue)}
+.chip.sep{border:none;background:none;cursor:default;color:var(--faint);padding:5px 2px}
+
+.month{font-family:var(--mono);font-size:.78rem;letter-spacing:.2em;color:var(--amber);
+  margin:22px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.month .mcount{color:var(--faint);letter-spacing:.05em}
+
+.ev{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;
+  display:grid;grid-template-columns:100px 1fr;gap:12px}
+.ev.done{opacity:.5}
+.ev.active{border-color:var(--go);box-shadow:inset 3px 0 0 var(--go)}
+.ev.soon{border-color:var(--blue-deep)}
+.datecol{text-align:center;border-right:1px solid var(--line);padding-right:10px}
+.datecol .d{font-family:var(--mono);font-size:1.02rem;font-weight:700;line-height:1.3}
+.datecol .st{font-family:var(--mono);font-size:.62rem;margin-top:6px;padding:2px 6px;border-radius:4px;display:inline-block}
+.st.f{color:var(--faint);border:1px solid var(--line)}
+.st.a{color:#0C1220;background:var(--go);font-weight:700}
+.st.s{color:var(--go);border:1px solid var(--go)}
+.st.u{color:var(--dim);border:1px solid var(--line)}
+.datecol .conf{font-family:var(--mono);font-size:.55rem;color:var(--faint);margin-top:6px;letter-spacing:.03em}
+.datecol .eid{font-family:var(--mono);font-size:.5rem;color:var(--faint);margin-top:5px;word-break:break-all;opacity:.7}
+
+.ev h3{font-size:.94rem;font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;padding:2px 7px;border-radius:4px;font-weight:700}
+.imp3{background:var(--amber-deep);color:#fff}
+.imp2{border:1px solid var(--amber);color:var(--amber)}
+.imp1{border:1px solid var(--faint);color:var(--dim)}
+.tr3{border:1px solid var(--go);color:var(--go)}.tr2{border:1px solid var(--dim);color:var(--dim)}.tr1{border:1px solid var(--faint);color:var(--faint)}
+.cw2{border:1px solid var(--danger);color:var(--danger)}.cw1{border:1px solid var(--amber);color:var(--amber)}.cw0{border:1px solid var(--go);color:var(--go)}
+.kata{border:1px solid var(--blue-deep);color:var(--blue)}
+.biasb{border:1px solid var(--violet);color:var(--violet)}
+.mech{font-size:.8rem;color:var(--dim);margin-top:4px}
+.meta2{font-family:var(--mono);font-size:.62rem;color:var(--faint);margin-top:5px;display:flex;gap:12px;flex-wrap:wrap}
+.meta2 b{color:var(--dim)}
+
+.phases{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:8px}
+.phc{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 8px}
+.phc .pk{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em}
+.phc.pre .pk{color:var(--blue)}.phc.day .pk{color:var(--amber)}.phc.post .pk{color:var(--go)}
+.phc .pv{font-size:.72rem;color:var(--ink);line-height:1.45}
+.phc.now{border-color:var(--go);box-shadow:0 0 0 1px var(--go)}
+
+.rows{margin-top:8px;display:grid;gap:5px}
+.row{display:grid;grid-template-columns:80px 1fr;gap:8px;font-size:.79rem}
+.row .k{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;padding-top:3px}
+.k.up{color:var(--go)}.k.dn{color:var(--danger)}.k.pl{color:var(--blue)}.k.wr{color:var(--amber)}.k.iv{color:var(--danger)}.k.cf{color:var(--go)}
+.row .v{color:var(--ink)}
+.row .v .dim{color:var(--dim)}
+.row .v ul{margin-left:16px}
+.row .v li{margin-bottom:1px}
+.src{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);font-family:var(--mono);
+  font-size:.62rem;color:var(--faint);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.src a{color:var(--blue);text-decoration:none}.src a:hover{text-decoration:underline}
+.ttag{font-size:.6rem;border:1px solid var(--line);border-radius:3px;padding:1px 6px;color:var(--dim)}
+
+.review{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+.review summary{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;color:var(--violet);cursor:pointer;
+  list-style:none;display:flex;align-items:center;gap:8px}
+.review summary::-webkit-details-marker{display:none}
+.review summary::before{content:"▸";color:var(--violet)}
+.review[open] summary::before{content:"▾"}
+.review .saved{color:var(--go);font-size:.6rem}
+.rvbody{margin-top:8px;display:grid;gap:7px}
+.rvrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.rvrow label{font-size:.7rem;color:var(--dim);min-width:64px}
+.rvbody .seg{display:flex;gap:4px}
+.seg button{background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:5px;
+  padding:4px 10px;font-size:.7rem;cursor:pointer;font-family:var(--sans)}
+.seg button.on.worked{background:var(--go);border-color:var(--go);color:#0C1220}
+.seg button.on.failed{background:var(--danger);border-color:var(--danger);color:#fff}
+.seg button.on.neutral{background:var(--dim);border-color:var(--dim);color:#0C1220}
+.seg button.on.yes{background:var(--danger);border-color:var(--danger);color:#fff}
+.seg button.on.no{background:var(--go);border-color:var(--go);color:#0C1220}
+.rvbody input,.rvbody textarea{flex:1;min-width:140px;background:var(--bg);border:1px solid var(--line);
+  border-radius:5px;color:var(--ink);font-family:var(--sans);font-size:.74rem;padding:5px 8px}
+.rvbody textarea{width:100%;resize:vertical;min-height:34px}
+
+.legend{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:22px}
+.legend h2{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;color:var(--blue);margin-bottom:8px}
+.lg{display:grid;grid-template-columns:120px 1fr;gap:6px 10px;font-size:.76rem}
+.lg dt{font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;color:var(--amber);padding-top:2px}
+.lg dd{color:var(--dim)}
+.lg dd b{color:var(--ink);font-weight:600}
+.note{font-size:.72rem;color:var(--faint);margin-top:16px;border-top:1px solid var(--line);padding-top:10px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.toolbar button{background:var(--panel);border:1px solid var(--line);color:var(--dim);border-radius:6px;
+  padding:6px 12px;font-size:.72rem;cursor:pointer;font-family:var(--sans)}
+.toolbar button:hover{border-color:var(--blue);color:var(--blue)}
+
+@media(max-width:600px){
+  .wrap{padding:0 6px}
+  header,.tpanel,#nextup{padding-left:10px;padding-right:10px}
+  .ev{grid-template-columns:1fr;gap:6px;padding:10px 10px}
+  .datecol{display:flex;align-items:center;gap:8px;text-align:left;flex-wrap:wrap;
+    border-right:none;border-bottom:1px solid var(--line);padding:0 0 6px}
+  .datecol .d{font-size:.92rem}.datecol .st{margin-top:0}
+  .datecol .conf{margin-top:0;margin-left:auto;text-align:right}
+  .datecol .eid{display:none}
+  .phases{grid-template-columns:1fr;gap:4px}
+  .row{grid-template-columns:58px 1fr;gap:6px}.rows{gap:4px}
+  .badge{padding:2px 5px;font-size:.56rem}
+  .lg{grid-template-columns:88px 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <div class="eyebrow">Structural Edge Radar — 2026 H2 / v3</div>
+    <h1>需給イベントカレンダー<small>歪みの予報。売買シグナルではなく、当日の反応確認とセットで使う</small></h1>
+  </div>
+  <div class="today">TODAY: <b id="todayLabel"></b></div>
+</header>
+
+<div id="dontPanel" class="tpanel" hidden>
+  <div class="tp-label">✕ 今日やらないこと</div>
+  <div class="dont-list" id="dontList"></div>
+</div>
+
+<div id="actionPanel" class="tpanel" hidden>
+  <div class="tp-label">◈ 今日やること</div>
+  <div id="apList"></div>
+</div>
+
+<div id="nextup" hidden>
+  <div class="nu-label">▶ NEXT UP</div>
+  <div class="nu-row"><span class="nu-count" id="nuCount"></span><span class="nu-title" id="nuTitle"></span></div>
+</div>
+
+<div class="filters" id="filters">
+  <button class="chip on" data-f="all">すべて</button>
+  <span class="chip sep">｜</span>
+  <button class="chip" data-f="imp3">影響:特大</button>
+  <button class="chip" data-f="trad3">取りやすさ:★★★</button>
+  <button class="chip" data-f="lowcrowd">混雑:低〜中</button>
+  <span class="chip sep">｜</span>
+  <button class="chip" data-f="buy">買い需給</button>
+  <button class="chip" data-f="sell">売り需給</button>
+  <button class="chip" data-f="future">未了のみ</button>
+</div>
+
+<div id="list"></div>
+
+<div class="legend">
+  <h2>■ 指標の見方 — LEGEND</h2>
+  <dl class="lg">
+    <dt>影響度</dt><dd><b>市場全体へのインパクトの大きさ</b>。特大＝指数レベル／高＝テーマ・セクター／中＝限定的。<b>大きい＝儲かる、ではない</b>（取りやすさと別軸）。</dd>
+    <dt>取りやすさ</dt><dd><b>個人が実際にエッジ化しやすいか</b>。★★★＝相手・期限・対象が明確で後追いでも間に合う／★＝影響大でも結果が二方向・織り込みが速く直前に当てに行く価値がない。<b>迷ったら★★★だけやる</b>。</dd>
+    <dt>混雑</dt><dd><b>どれだけ多くの参加者が見ているか</b>。高＝機関・裁定勢が徹底分析済み→<b>先回り禁止・通過後のみ・実施日引けピークアウト警戒</b>。</dd>
+    <dt>型 A/B/C/D</dt><dd><b>A</b>=Structural Event／<b>B</b>=Behavioral Reversal／<b>C</b>=Theme Propagation／<b>D</b>=Defensive Rotation。<b>A→B</b>=イベントはAだが取り方は通過後のB。</dd>
+    <dt>trade_bias</dt><dd>実際に取るトレードの方向（需給方向とは別軸）。<b>long_post</b>=通過後の買い／<b>long_pre</b>=事前の買い／<b>reversal</b>=反転狙い／<b>watch</b>=観察のみ・新規建てしない／<b>two_sided</b>=発表内容次第。</dd>
+    <dt>size / 保有</dt><dd>推奨ポジションサイズ（normal/small/very_small/watch_only）と想定保有期間・手仕舞いトリガー(exit)。Structural Edgeは期限付きなので伸びなければ期間内に降りる。</dd>
+    <dt>事前/当日/通過後</dt><dd>フェーズ別行動。<b>営業日ベース</b>で今日が該当するフェーズを緑枠ハイライト（祝日・休場を除外し前後3営業日で判定）。</dd>
+    <dt>✓ Go条件</dt><dd><b>やってよい確認条件</b>。これが揃って初めて検討可。テーマモニターのTOPIX相対・Breadth・出来高で確認する項目。</dd>
+    <dt>✕ 無効化</dt><dd><b>「イベントはあるが今回は効いていない」の判定</b>。1つでも成立なら見送り。「イベント＝必ず動く」という錯覚への防波堤。</dd>
+    <dt>事後ログ</dt><dd>各カード下部の「事後検証ログ」を開いて結果を記録（worked/failed/neutral、無効化条件の発動有無、効いたテーマ、メモ）。<b>ブラウザに保存</b>され、来期の精度を上げる。JSON書き出し可。</dd>
+    <dt>ID / SOURCE</dt><dd>イベント固定ID（検証ログ紐付け用）と情報の出所・確認日。<b>「要直前確認」印</b>は推計金額・未確定日程。トレード前に一次情報で更新。</dd>
+  </dl>
+</div>
+
+<div class="toolbar">
+  <button id="exportBtn">事後ログをJSONで書き出し</button>
+  <button id="clearBtn">事後ログを全消去</button>
+</div>
+
+<div class="note">
+  <b>毎朝の4ステップ</b>：①今日どのイベントのどのフェーズか（上部パネル）→ ②対象テーマがTOPIXに勝ちBreadth・出来高が伴うか（Go条件／テーマモニター）→ ③損切りが近い価格はどこか → ④相手は誰でいつ需給が終わるか。4つ揃わなければ見送り。<br>
+  本ファイルは判断の参考メモであり投資助言ではない。推計値・未確定日程は直前に一次情報で要確認。
+</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var LS='demandCal_review_v3';
+
+var HOLIDAYS={'2026-07-20':1,'2026-08-11':1,'2026-09-21':1,'2026-09-22':1,'2026-09-23':1,
+  '2026-10-12':1,'2026-11-03':1,'2026-11-23':1,'2026-12-31':1,
+  '2027-01-01':1,'2027-01-02':1,'2027-01-03':1};
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function isBiz(d){var g=d.getDay();return g!==0&&g!==6&&!HOLIDAYS[iso(d)]}
+function addBiz(d,n){var r=new Date(d),step=n<0?-1:1,left=Math.abs(n);
+  while(left>0){r.setDate(r.getDate()+step);if(isBiz(r))left--;}return r;}
+
+var EV=[
+{id:'2026h2_etf_dist_frontrun',s:'2026-07-06',e:'2026-07-07',dl:'7/6-7',t:'ETF売り先回りゾーン',
+ imp:1,trad:1,crowd:2,flow:'sell',bias:'watch',size:'watch_only',hold:'—',exit:'—',kata:'A',
+ mech:'8日・10日の分配金売りを見越した投機筋の先物ヘッジ売りが先行しやすい期間。既に混んでおり事前の空売り追随は妙味薄。',
+ up:'',dn:'日経225・TOPIXウェイト上位の大型株がやや重くなりやすい',
+ ph:{pre:'何もしない',day:'観察のみ。リバの仕込み価格帯を設計',post:'—'},
+ confirm:[],invalid:['先回り売りが観測されない（当日の下押し自体が起きない可能性）'],
+ warn:'',src:{label:'市場慣行',chk:'26/07/04'},themes:['index_heavy']},
+
+{id:'2026h2_etf_dist_sell_d1',s:'2026-07-08',e:'2026-07-08',dl:'7/8 水',t:'ETF分配金捻出売り①（決算集中日）',
+ imp:3,trad:2,crowd:2,flow:'sell',bias:'watch',size:'watch_only',hold:'翌日以降',exit:'—',kata:'A→B',
+ mech:'ETFは決算期間中の配当収入を全額分配するルールのため決算日に現物・先物を売り原資を捻出。8日・10日で計1.7兆円規模の推計（2024年実績1.2兆円強）。売りは大引けのCAに集中。',
+ up:'（翌日以降）売り通過後のアク抜け候補の抽出',dn:'当日引けにかけ日経225・TOPIX採用の大型株全般に機械的な売り',
+ ph:{pre:'新規買いしない',day:'当日は買わない。引け需給(CA)を観察・記録',post:'翌営業日：VWAP回復・前日安値維持を確認してから'},
+ confirm:['引けで実際に大型株が需給で押された','押した銘柄に個別の悪材料がない'],
+ invalid:['活況・織り込み済みで当日ほぼ押さない（2025年は杞憂）','押した銘柄に個別の悪材料がある'],
+ warn:'推計1.7兆円は報道ベース。固定値として扱わない',
+ src:{label:'日経報道（推計）',url:'https://www.nikkei.com/article/DGXZQOUB302XF0Q6A630C2000000/',chk:'26/07/04',need:1},
+ themes:['index_heavy','bank','semi_large']},
+
+{id:'2026h2_etf_dist_sell_d2_sq',s:'2026-07-10',e:'2026-07-10',dl:'7/10 金',t:'ETF分配金捻出売り② ＋ オプションSQ（同日重複）',
+ imp:3,trad:2,crowd:2,flow:'both',bias:'watch',size:'watch_only',hold:'翌週',exit:'—',kata:'A→B',
+ mech:'ETF決算2日目とオプションSQが同日重複。寄りと引けの両方で需給が振れる。過去は先回り売り方の買い戻しが支え当日むしろ上昇した年も（2024/7/10 +0.61%）。',
+ up:'SQ＋ETF売り出尽くしの「イベント通過」確認',dn:'寄りのSQ需給、引けのETF売り',
+ ph:{pre:'新規買いしない',day:'観察。成行禁止（寄り値が飛ぶ）',post:'7/13週が本命の拾い場'},
+ confirm:['SQ通過後に指数が安値を切り上げる'],invalid:['当日まで下押しがない＝歪み自体が発生していない'],
+ warn:'SQ値と寄り値の乖離に注意',src:{label:'市場慣行＋日経報道',chk:'26/07/04',need:1},themes:['index_heavy']},
+
+{id:'2026h2_etf_post_reversal',s:'2026-07-13',e:'2026-07-17',dl:'7/13週',t:'ETF売り通過後 アク抜けリバゾーン',
+ imp:3,trad:3,crowd:1,flow:'buy',bias:'long_post',size:'normal',hold:'1〜5営業日',exit:'event_end / vwap_fail / no_rebound_5d',kata:'B',
+ mech:'1.7兆円の売りイベント通過で需給の重石が外れる週。業績と無関係に指数需給だけで売られた大型株が戻りやすい。売り手(ETF)は既に消滅。相手と期限が明確だったStructural Edgeの回収局面。',
+ up:'ETF売りで押された高配当・バリュー大型（銀行8306/8316/8411、商社8058/8031、保険）／需給で連れ安した半導体大型',dn:'',
+ ph:{pre:'—',day:'下値固め＋VWAP回復銘柄に損切りの近い指値',post:'伸びなければ5営業日以内に降りる'},
+ confirm:['対象テーマの1D TOPIX相対がプラス転換','Breadth≥60%','候補銘柄がVWAP回復','前日安値を維持','売買代金が通常以上'],
+ invalid:['指数がイベント通過後も安値更新','売られた大型株がVWAPを回復しない','対象テーマがTOPIX相対で下位のまま','Breadthが改善しない'],
+ warn:'この週から決算開始。決算またぎ銘柄は対象外',src:{label:'市場慣行',chk:'26/07/04'},
+ themes:['bank','trading_company','high_dividend','semi_large']},
+
+{id:'2026h2_q1_earnings',s:'2026-07-22',e:'2026-08-14',dl:'7月下旬〜',t:'4-6月期決算シーズン',
+ imp:2,trad:2,crowd:0,flow:'both',bias:'reversal',size:'normal',hold:'数十分〜3営業日',exit:'vwap_fail / no_rebound',kata:'B/C',
+ mech:'決算失望の投げ・好決算の過剰反応・無関係な同業への連れ安が毎日発生するBehavioral Edgeの最盛期。（Structural系ではなくBehavioral用マーカー）',
+ up:'一時費用で売られたが本業が強い決算の翌日以降買い直し／好決算同業への波及（C型）',dn:'ガイダンス下方修正・構造的悪化（リバ対象外）',
+ ph:{pre:'決算またぎの新規建て禁止',day:'初動は追わない。過剰反応の判定',post:'投げ出来高→下値固め→指値'},
+ confirm:['下げの理由が一過性と読める','投げの出来高が急増して出切りつつある','下値が固まりVWAP回復'],
+ invalid:['下げの理由がファンダメンタルズ（リバではない）','投げの出来高急増がまだ出ていない'],
+ warn:'',src:{label:'決算日程は各社IR',chk:'26/07/04',need:1},themes:['earnings']},
+
+{id:'2026h2_boj_jul',s:'2026-07-30',e:'2026-07-31',dl:'7/30-31',t:'日銀金融政策決定会合（展望レポート回）',
+ imp:3,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'通過後',exit:'—',kata:'—',
+ mech:'6月会合で政策金利1.00%へ利上げ済み（31年ぶり水準）のため据え置きが本線。展望レポートと7/31 15:30総裁会見のトーンで次回利上げの織り込みが動く。結果は11〜13時頃公表。Structuralではなくマクロ・イベントリスクで、直前に方向を当てに行くのはエッジではない。',
+ up:'（タカ派確認後）銀行8306/8316/8411・保険8766',dn:'（タカ派確認後）REIT・不動産・高PERグロース',
+ ph:{pre:'ポジション量を点検・縮小',day:'新規禁止。結果と会見で金利方向を確認するだけ',post:'方向確認後に銀行/保険↔REIT/グロースの資金循環に乗る（D型）'},
+ confirm:['通過後に銀行・保険がTOPIX相対で明確に強い','金利上昇方向がはっきり確認できた'],
+ invalid:['通過後も銀行・保険がTOPIX相対で強くならない（タカ派シナリオ無効）'],
+ warn:'保有中のメガバンクは会見までサイズ点検',
+ src:{label:'日銀公式（日程確定）',url:'https://www.boj.or.jp/mopo/mpmsche_minu/index.htm',chk:'26/07/04'},
+ themes:['bank','insurance','reit','growth']},
+
+{id:'2026h2_month_end_jul',s:'2026-07-31',e:'2026-07-31',dl:'7/31 金',t:'月末リバランス（日銀と同日）',
+ imp:1,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'—',exit:'—',kata:'A',
+ mech:'株高月は機関の資産配分リバランス売りが月末に出やすい。今回は日銀会合と同日で因果の特定が困難。',
+ up:'',dn:'月間騰落の大きい指数ウェイト上位',
+ ph:{pre:'—',day:'無理をしない',post:'8月初の投信買いとセットで観察'},
+ confirm:[],invalid:[],warn:'値動きの解釈を誤りやすい日',src:{label:'市場慣行',chk:'26/07/04'},themes:['index_heavy']},
+
+{id:'2026h2_obon',s:'2026-08-10',e:'2026-08-14',dl:'8月中旬',t:'お盆閑散（薄商い）',
+ imp:1,trad:1,crowd:0,flow:'both',bias:'watch',size:'small',hold:'—',exit:'—',kata:'—',
+ mech:'参加者減で板が薄く小型・材料株の値が飛ぶ。仕掛け的な急騰急落が増える。',
+ up:'',dn:'低流動性小型株のスプレッド拡大',
+ ph:{pre:'—',day:'サイズを平時より落とす。指値徹底',post:'—'},
+ confirm:[],invalid:[],warn:'成行の執行コストが跳ねる',src:{label:'市場慣行',chk:'26/07/04'},themes:['small_cap']},
+
+{id:'2026h2_msci_qir_aug',s:'2026-08-25',e:'2026-08-28',dl:'8月下旬',t:'MSCI 四半期リバランス（QIR）',
+ imp:2,trad:2,crowd:2,flow:'both',bias:'long_pre',size:'small',hold:'発表〜実施日',exit:'実施日引けで手仕舞い',kata:'A',
+ mech:'四半期見直し。月末リバランス日の引けにパッシブ売買が集中。採用・除外・ウェイト変更銘柄に機械的フロー。発表（実施約2週間前）時点でかなり織り込まれる。',
+ up:'新規採用・ウェイト引き上げ銘柄',dn:'除外・引き下げ銘柄',
+ ph:{pre:'発表後の押し目のみ検討（後追い禁止）',day:'実施日引け＝需給ピークアウト。保有分は利確',post:'需給消滅。持つ理由がなくなる'},
+ confirm:['発表銘柄が発表直後に織り込み切っていない','採用側が発表後に押し目を作る'],
+ invalid:['発表後に対象銘柄が即座に織り込み切って動かない','事前予想リストが外れた'],
+ warn:'混雑度高。発表後の高値追いは織り込みの後始末',src:{label:'MSCI公式発表（日程・銘柄は直前確認）',chk:'26/07/04',need:1},themes:['passive_flow']},
+
+{id:'2026h2_topix_reform_base',s:'2026-08-31',e:'2026-08-31',dl:'8/31 月',t:'TOPIX第2段階見直し 定期入替基準日',
+ imp:3,trad:2,crowd:2,flow:'both',bias:'long_pre',size:'small',hold:'基準日〜公表',exit:'過熱で利確 / 10月公表前',kata:'A/C',
+ mech:'10/30のTOPIX初回定期入替の判定基準日。年間売買代金回転率と浮動株時価総額の累積比率で選定、構成銘柄約1,700→約1,200へ（約500除外、スタンダード・グロースから約50新規採用見込み）。8月末までの株価・売買代金が判定材料でボーダー銘柄に思惑売買。ルール・時期・対象が明確でパッシブフローが絡む下期最重要級の構造イベント。',
+ up:'採用候補：スタンダード・グロースの浮動株時価総額上位（採用なら浮動株時価総額75%分の一括買い）',dn:'除外候補：プライム下位の低流動性銘柄（売りは四半期8段階で時間分散＝インパクト緩和）',
+ ph:{pre:'候補群のうち「まだ織り込まれていない・出遅れ」だけを拾う。後追い禁止',day:'基準日通過で思惑一巡',post:'10/7の公表待ち。過熱したものは利確'},
+ confirm:['複数証券の候補リストで採用予想が一致','候補がテーマとして連動している','出遅れ代表銘柄がまだ過熱していない'],
+ invalid:['候補銘柄群がテーマとして連動していない（個別の思惑だけ）','証券会社の候補リスト間で予想が大きく割れている'],
+ warn:'みんなが見ているイベント。証券各社が徹底分析済み',
+ src:{label:'JPX公式（ルール確定）',url:'https://www.jpx.co.jp/markets/indices/revisions-indices/02.html',chk:'26/07/04'},
+ themes:['topix_reform','standard_growth_large']},
+
+{id:'2026h2_nikkei_review_announce',s:'2026-09-07',e:'2026-09-09',dl:'9月上旬',t:'日経平均 定期見直し発表（6857キャップ問題）',
+ imp:2,trad:2,crowd:2,flow:'both',bias:'two_sided',size:'small',hold:'発表〜実施',exit:'実施日（10月初）',kata:'A',
+ mech:'入替銘柄の発表に加え、日経平均構成比率約9%のアドバンテスト(6857)へのキャップ（上限10%）適用が焦点。適用なら連動ファンドが同株を売却し他224銘柄を購入する調整が発生、推定売り圧力は数千億円規模との見方。',
+ up:'キャップ適用なら：6857以外の224銘柄へ広く薄い買い（値がさ上位ほど恩恵）／新規採用銘柄',dn:'キャップ適用なら：6857に実施日までの売り圧力／除外銘柄',
+ ph:{pre:'発表前の決め打ち禁止',day:'発表内容（採用・除外・キャップ有無）を確認',post:'確定した構図の方向にだけ乗る（実施は10月初）'},
+ confirm:['キャップ適用が正式発表された','波及先の224銘柄or採用銘柄が発表後まだ織り込み途中'],
+ invalid:['キャップ不適用の発表（構図自体が消滅）','発表後に対象銘柄が即織り込んで値幅が出ない'],
+ warn:'発表日と内容は日経新聞社の公表待ち。要直前確認',src:{label:'日経新聞社 指数公表（要確認）',chk:'26/07/04',need:1},themes:['nikkei225','semi_large']},
+
+{id:'2026h2_major_sq_sep',s:'2026-09-11',e:'2026-09-11',dl:'9/11 金',t:'メジャーSQ',
+ imp:1,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'—',exit:'—',kata:'—',
+ mech:'先物・オプション同時清算。SQ週は指数の振れが大きく寄りのSQ値算出需給が発生。',
+ up:'',dn:'',ph:{pre:'指数系の騙し増加を前提に',day:'観察。寄り成行禁止',post:'週明けの方向が本物になりやすい'},
+ confirm:[],invalid:[],warn:'SQ通過を即アク抜けと断定しない',src:{label:'取引所カレンダー',chk:'26/07/04'},themes:['index']},
+
+{id:'2026h2_sep_dividend_capture',s:'2026-09-14',e:'2026-09-24',dl:'9月中下旬',t:'中間配当 権利取りの買い集まりゾーン',
+ imp:2,trad:3,crowd:1,flow:'buy',bias:'long_pre',size:'normal',hold:'権利日前に一部利確',exit:'権利付き最終日の前 / 過熱',kata:'A',
+ mech:'9月末の中間配当・優待の権利取りに向けた買いが先行して積み上がる。増配基調で配当再投資規模は年々拡大。「配当を取る」のではなく「配当を取りに来る買いに乗る」のが本質。',
+ up:'高配当：メガバンク8306/8316/8411、商社8058/8031、海運9101/9104/9107、鉄鋼、通信9432/9433、保険。優待人気銘柄',dn:'',
+ ph:{pre:'この期間の押し目を拾う',day:'権利付き最終日の3営業日前（9/24頃）以降は新規買い注意',post:'権利落ち前に一部利確が定石'},
+ confirm:['高配当テーマがTOPIXに勝っている','銀行・商社・保険のBreadthが高い','権利付き最終日の3営業日前以前','レンジ上限に張り付いていない'],
+ invalid:['高配当テーマがTOPIXに勝てない','権利日接近で出来高だけ増えて株価が伸びない','権利落ち前に既に過熱（レンジ上限圏）'],
+ warn:'権利直前の飛び付きは高値掴み',src:{label:'取引所カレンダー（権利日は要確認）',chk:'26/07/04',need:1},themes:['high_dividend','bank','trading_company','shipping']},
+
+{id:'2026h2_boj_sep',s:'2026-09-17',e:'2026-09-18',dl:'9/17-18',t:'日銀金融政策決定会合（展望なし回）',
+ imp:2,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'通過後',exit:'—',kata:'—',
+ mech:'展望レポートのない中間回。7月会合の織り込みの答え合わせ。権利取りゾーンと重なるため高配当・銀行の値動きに日銀要因が混ざる。',
+ up:'（タカ派確認後）銀行・保険',dn:'（タカ派確認後）REIT・不動産・グロース',
+ ph:{pre:'サイズ点検',day:'新規禁止・結果確認のみ',post:'方向確認後の資金循環'},
+ confirm:['通過後に金利敏感テーマの相対強度が明確化'],invalid:['通過後に金利敏感テーマの相対強度が変化しない'],
+ warn:'',src:{label:'日銀公式（日程確定）',url:'https://www.boj.or.jp/mopo/mpmsche_minu/index.htm',chk:'26/07/04'},themes:['bank','insurance','reit']},
+
+{id:'2026h2_sep_ex_dividend',s:'2026-09-28',e:'2026-09-29',dl:'9/28-29',t:'権利付き最終日（9/28）／権利落ち日（9/29）',
+ imp:2,trad:2,crowd:1,flow:'both',bias:'reversal',size:'normal',hold:'数十分〜3営業日',exit:'落ち埋め達成 / 地合い悪化',kata:'A→B',
+ mech:'9/28が中間配当の権利付き最終日、9/29は配当分の機械的下落（権利落ち）。落ち分を即日埋めるかは地合いのバロメーター。',
+ up:'落ち日に配当以上に売られた銘柄＝需給の売られすぎ候補（B型）／10月初の配当再投資フロー見越しの押し目',dn:'9/29のディフェンシブ・高配当に機械的な下げ',
+ ph:{pre:'9/24以降の新規買いは注意',day:'権利落ち幅と実際の下落幅を比較',post:'落ち分超の下落銘柄をB型判定にかける'},
+ confirm:['実際の下落幅＞理論権利落ち幅','指数自体は崩れていない','落ち埋めが多発＝地合い強'],
+ invalid:['指数自体が弱く全面安（落ち埋め狙い不成立）','落ち分ちょうどの下落（歪みなし）'],
+ warn:'',src:{label:'取引所カレンダー（要確認）',chk:'26/07/04',need:1},themes:['high_dividend','defensive']},
+
+{id:'2026h2_nikkei_impl',s:'2026-10-01',e:'2026-10-01',dl:'10/1頃',t:'日経平均 定期入替 実施＋下期スタート資金',
+ imp:2,trad:2,crowd:1,flow:'both',bias:'two_sided',size:'small',hold:'実施前後',exit:'実施引けピーク',kata:'A→B',
+ mech:'定期見直しの実施（前営業日引けにパッシブ売買集中）と下期初の機関資金配分・投信設定の買いが重なる。6857キャップ調整があれば指数内の歪みが通常より大きい。',
+ up:'新規採用銘柄／下期初の資金流入（高配当・大型優良）',dn:'除外銘柄（実施後は需給の重石が消え逆に戻す例も）',
+ ph:{pre:'実施前営業日の引けが需給ピーク',day:'採用側の保有分は利確検討',post:'除外銘柄の「売られすぎ→需給消滅後の戻り」をB型判定'},
+ confirm:['実施前に候補がまだ織り込み途中','除外銘柄が実施後に過剰に売られた'],invalid:['実施前に値幅が出ず織り込み完了している'],
+ warn:'',src:{label:'日経新聞社 指数公表（要確認）',chk:'26/07/04',need:1},themes:['nikkei225','passive_flow']},
+
+{id:'2026h2_topix_exclusion_announce',s:'2026-10-07',e:'2026-10-07',dl:'10/7頃',t:'TOPIX除外銘柄の公表（10月第5営業日）',
+ imp:3,trad:2,crowd:1,flow:'both',bias:'reversal',size:'small',hold:'数日',exit:'下値固め失敗 / 過剰反応解消',kata:'A→B',
+ mech:'初回定期入替で除外される約500銘柄（移行措置銘柄）の公表日。該当銘柄はこの日に大きく動く。除外確定でも売りは四半期8段階分散のため当日の投げは過剰反応になりやすい。',
+ up:'「除外予想→残留」銘柄のショートカバー／除外確定の過剰反応リバ（B型）',dn:'「残留予想→除外」のサプライズ売り',
+ ph:{pre:'公表前のポジション点検（保有銘柄が除外候補にないか）',day:'成行禁止。サプライズ方向の初動は取らない',post:'過剰反応した下げの下値固めを待ってB型'},
+ confirm:['除外確定銘柄が「2年分散」を無視して過剰に売られた','下げた銘柄の下値が固まる'],
+ invalid:['公表内容が事前予想通りで値幅が出ない','下げた銘柄の下値が固まらない'],
+ warn:'板の薄い銘柄ほど飛ぶ',src:{label:'JPX公式（公表日ルール確定）',url:'https://www.jpx.co.jp/markets/indices/revisions-indices/02.html',chk:'26/07/04'},themes:['topix_reform']},
+
+{id:'2026h2_boj_oct',s:'2026-10-29',e:'2026-10-30',dl:'10/29-30',t:'日銀会合（展望回）※TOPIX入替と同日重複',
+ imp:3,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'通過後',exit:'—',kata:'—',
+ mech:'展望レポート回で年内追加利上げの有無が最大論点。しかも最終日10/30はTOPIX初回定期入替の実施日と完全重複。日銀結果（昼）→入替引け需給（大引け）と1日に2つの巨大イベントが連続する特異日。',
+ up:'（タカ派確認後）銀行・保険',dn:'（タカ派確認後）REIT・不動産・グロース',
+ ph:{pre:'ポジション縮小。この週は軽くしておく',day:'新規禁止。昼の日銀→引けの入替需給を分けて観察',post:'方向確認後の資金循環（D型）'},
+ confirm:['通過後に金利敏感テーマの相対強度が明確化'],invalid:['通過後に金利敏感テーマの相対強度が変化しない'],
+ warn:'値動きの因果（日銀か入替か）を混同しない',src:{label:'日銀公式（日程確定）',url:'https://www.boj.or.jp/mopo/mpmsche_minu/index.htm',chk:'26/07/04'},themes:['bank','insurance','reit','growth']},
+
+{id:'2026h2_topix_impl',s:'2026-10-30',e:'2026-10-30',dl:'10/30 金',t:'TOPIX初回定期入替 実施日（下期最大の構造イベント）',
+ imp:3,trad:2,crowd:2,flow:'both',bias:'long_pre',size:'small',hold:'実施日引けで手仕舞い',exit:'実施引けピークアウト',kata:'A',
+ mech:'10月最終営業日にTOPIX史上初の定期入替を実施。新規採用銘柄は浮動株時価総額の75%分を一括追加＝実施日引けにまとまったパッシブ買い。除外銘柄は同日から四半期8段階でウエイト低減開始（2028年7月まで継続）。TOPIX Next-tier指数も同日算出開始。連動資産約110兆円。',
+ up:'新規採用組（スタンダード・グロース大型 約50銘柄）：実施日引けの大口買い＋以後の指数フロー定着',dn:'除外組：以後2年間、四半期ごとの機械的な売りが継続する構造',
+ ph:{pre:'採用側は実施日前の過熱分を利確準備',day:'実施日引け＝需給ピーク。ここで利確が定石。後追い禁止',post:'需給消滅。除外側の過剰反応だけB型で監視'},
+ confirm:['採用候補が実施日前にまだ過熱していない','事前に精度の高い採用リストを作れている'],
+ invalid:['実施日前に候補銘柄が既に織り込み切って動意なし'],
+ warn:'混雑度最高クラス。実施日近くの後追いは織り込みの後始末を掴むだけ',
+ src:{label:'JPX公式（実施日ルール確定）',url:'https://www.jpx.co.jp/markets/indices/revisions-indices/02.html',chk:'26/07/04'},themes:['topix_reform','standard_growth_large','passive_flow']},
+
+{id:'2026h2_q2_earnings',s:'2026-11-02',e:'2026-11-13',dl:'11月上中旬',t:'7-9月期決算シーズン（中間決算）',
+ imp:2,trad:2,crowd:0,flow:'both',bias:'reversal',size:'normal',hold:'数十分〜5営業日',exit:'vwap_fail / no_rebound',kata:'B/C',
+ mech:'中間決算集中期間。通期見通しの上方・下方修正が絡むため4-6月期より値幅が大きい。失望の投げと過剰反応の修正が多発。',
+ up:'上方修正の同業波及（C型）／一時要因の売りの買い直し',dn:'下方修正・進捗悪の投げ',
+ ph:{pre:'決算またぎ禁止',day:'初動は追わない',post:'投げ出来高→下値固め→指値'},
+ confirm:['下げの理由が一過性','投げの出来高急増','下値固め＋VWAP回復'],invalid:['下げの理由がファンダメンタルズ'],
+ warn:'',src:{label:'各社IR',chk:'26/07/04',need:1},themes:['earnings']},
+
+{id:'2026h2_msci_sair_nov',s:'2026-11-24',e:'2026-11-30',dl:'11月下旬',t:'MSCI 半期リバランス（SAIR・年内最大級）',
+ imp:2,trad:2,crowd:2,flow:'both',bias:'long_pre',size:'small',hold:'発表〜実施',exit:'実施日引け',kata:'A',
+ mech:'半期見直しで四半期(QIR)より対象・金額とも大規模。月末実施日の引けにパッシブフロー集中。',
+ up:'新規採用・格上げ',dn:'除外・格下げ',ph:{pre:'発表後の押し目のみ。後追い禁止',day:'実施日引けで手仕舞い',post:'需給消滅'},
+ confirm:['発表銘柄が発表直後に織り込み切っていない'],invalid:['発表後に即織り込み','事前予想リスト外れ'],
+ warn:'混雑度高',src:{label:'MSCI公式発表（要確認）',chk:'26/07/04',need:1},themes:['passive_flow']},
+
+{id:'2026h2_major_sq_dec',s:'2026-12-11',e:'2026-12-11',dl:'12/11 金',t:'メジャーSQ（12月限）',
+ imp:1,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'—',exit:'—',kata:'—',
+ mech:'年内最後のメジャーSQ。年末のポジション整理と重なり指数が振れやすい。',
+ up:'',dn:'',ph:{pre:'—',day:'観察',post:'週明けで方向確認'},confirm:[],invalid:[],warn:'',
+ src:{label:'取引所カレンダー',chk:'26/07/04'},themes:['index']},
+
+{id:'2026h2_tax_loss_selling',s:'2026-12-14',e:'2026-12-25',dl:'12月中下旬',t:'年末損出し売りゾーン',
+ imp:2,trad:3,crowd:0,flow:'sell',bias:'long_post',size:'normal',hold:'年明け1月第1-2週で回収',exit:'no_rebound / 下値切り下げ継続',kata:'A→B',
+ mech:'個人の税金対策（損益通算）で年初来の値下がり銘柄に売りが集中。売り手は価格非感応（税金都合）、対象は事前に絞れて年明け反発という時間軸も明確——個人が取りやすい条件が揃ったカレンダー内でも上位のイベント。',
+ up:'年明け1月第1-2週：損出しの投げで需給だけ壊れた銘柄のリバ',dn:'年初来下落率上位に追い打ちの売り（受渡ベース最終売却日に向けて）',
+ ph:{pre:'12月は買わない。年初来下落銘柄から「悪材料が一過性のもの」だけリスト化',day:'観察。投げの出来高を記録',post:'年明けの下値固め確認後に指値で拾う'},
+ confirm:['売られた理由が需給（税金）で本質は無事','年明けに下値固め＋出来高減','地合い全体が崩れていない'],
+ invalid:['本当に悪くて下がった銘柄（B型レッドフラグ該当）——年が明けても戻らない','年明けも下値切り下げ継続','地合い全体が崩れている'],
+ warn:'悪材料の本質判定を必ず通す。ここを飛ばすと落ちるナイフ',src:{label:'市場慣行（受渡最終日は要確認）',chk:'26/07/04',need:1},themes:['tax_loss','beaten_down']},
+
+{id:'2026h2_boj_dec',s:'2026-12-17',e:'2026-12-18',dl:'12/17-18',t:'日銀金融政策決定会合（年内最終）',
+ imp:2,trad:1,crowd:1,flow:'both',bias:'watch',size:'watch_only',hold:'通過後',exit:'—',kata:'—',
+ mech:'年内最後の会合。2025年12月に利上げした前例があり12月会合は近年ライブ化しやすい。',
+ up:'（タカ派確認後）銀行・保険',dn:'（タカ派確認後）REIT・不動産・グロース',
+ ph:{pre:'サイズ点検・縮小',day:'新規禁止・結果確認のみ',post:'方向確認後の資金循環'},
+ confirm:['通過後に金利敏感テーマの相対強度が明確化'],invalid:['通過後に金利敏感テーマの相対強度が変化しない'],
+ warn:'',src:{label:'日銀公式（日程確定）',url:'https://www.boj.or.jp/mopo/mpmsche_minu/index.htm',chk:'26/07/04'},themes:['bank','insurance','reit']},
+
+{id:'2026h2_dec_ex_dividend',s:'2026-12-28',e:'2026-12-29',dl:'12月末',t:'12月決算銘柄の権利付き最終日／大納会',
+ imp:1,trad:2,crowd:0,flow:'buy',bias:'long_pre',size:'small',hold:'権利日前',exit:'権利落ち前',kata:'A',
+ mech:'12月決算銘柄の期末配当・優待の権利取り。年末閑散と重なり値動きは軽い。',
+ up:'12月決算の高配当・優待銘柄',dn:'権利落ち日の機械的な下げ',
+ ph:{pre:'9月末と同じ型の縮小版',day:'—',post:'落ち分超の下落をB型判定'},
+ confirm:['高配当テーマがTOPIXに勝っている','過熱していない'],invalid:['高配当テーマがTOPIXに勝てない'],
+ warn:'商い薄のためサイズを落とす',src:{label:'取引所カレンダー（要確認）',chk:'26/07/04',need:1},themes:['high_dividend']}
+];
+
+var IMP=['','中','高','特大'],TRAD=['','★','★★','★★★'],CROWD=['低','中','高'];
+var FLOW={buy:'買い需給',sell:'売り需給',both:'両方向'};
+var MN={7:'JULY 2026 ── 7月',8:'AUGUST 2026 ── 8月',9:'SEPTEMBER 2026 ── 9月',10:'OCTOBER 2026 ── 10月',11:'NOVEMBER 2026 ── 11月',12:'DECEMBER 2026 ── 12月'};
+var WD=['日','月','火','水','木','金','土'];
+
+function ymd(s){var a=s.split('-');return new Date(+a[0],+a[1]-1,+a[2])}
+var now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+document.getElementById('todayLabel').textContent=(today.getMonth()+1)+'/'+today.getDate()+'（'+WD[today.getDay()]+'）';
+var DAY=86400000;
+
+function status(ev){
+  var s=ymd(ev.s),e=ymd(ev.e);
+  if(today>e)return{k:'f',label:'終了'};
+  if(today>=s&&today<=e)return{k:'a',label:'進行中'};
+  var d=Math.round((s-today)/DAY);
+  return{k:d<=7?'s':'u',label:'あと'+d+'日',days:d};
+}
+function phaseNow(ev){
+  var s=ymd(ev.s),e=ymd(ev.e);
+  if(today>=s&&today<=e)return'day';
+  if(today<s){var pre=addBiz(s,-3);return(today>=pre&&today<s)?'pre':null;}
+  if(today>e){var post=addBiz(e,3);return(today>e&&today<=post)?'post':null;}
+  return null;
+}
+function esc(x){return x==null?'':String(x)}
+function li(arr){return'<ul>'+arr.map(function(x){return'<li>'+esc(x)+'</li>'}).join('')+'</ul>'}
+
+function loadRev(){try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}}
+function saveRev(o){try{localStorage.setItem(LS,JSON.stringify(o))}catch(e){}}
+var REV=loadRev();
+function hasRev(r){return!!(r&&(r.result||r.invalid_triggered!=null&&r.invalid_triggered!==undefined||r.best_theme||r.notes))}
+
+function reviewBlock(ev){
+  var r=REV[ev.id]||{};
+  var saved=hasRev(r)?'<span class="saved">● 記録済み</span>':'';
+  function seg(name,opts){
+    return opts.map(function(o){
+      var on=r[name]===o.v?(' on '+o.cls):'';
+      return '<button data-id="'+ev.id+'" data-field="'+name+'" data-val="'+o.v+'" class="'+on.trim()+'">'+o.t+'</button>';
+    }).join('');
+  }
+  return '<details class="review"><summary>事後検証ログ '+saved+'</summary><div class="rvbody">'+
+    '<div class="rvrow"><label>結果</label><div class="seg">'+seg('result',[
+      {v:'worked',t:'worked',cls:'worked'},{v:'failed',t:'failed',cls:'failed'},{v:'neutral',t:'neutral',cls:'neutral'}])+'</div></div>'+
+    '<div class="rvrow"><label>無効化発動</label><div class="seg">'+seg('invalid_triggered',[
+      {v:'yes',t:'あり',cls:'yes'},{v:'no',t:'なし',cls:'no'}])+'</div></div>'+
+    '<div class="rvrow"><label>効いたテーマ</label><input data-id="'+ev.id+'" data-field="best_theme" value="'+esc(r.best_theme||'')+'" placeholder="例：銀行・商社は反発、半導体は戻らず"></div>'+
+    '<div class="rvrow"><textarea data-id="'+ev.id+'" data-field="notes" placeholder="観察メモ（値動き・条件の効き方など）">'+esc(r.notes||'')+'</textarea></div>'+
+  '</div></details>';
+}
+
+function card(ev,st){
+  var pn=phaseNow(ev);
+  var h='<article class="ev '+(st.k==='f'?'done':st.k==='a'?'active':st.k==='s'?'soon':'')+'" '+
+    'data-imp="'+ev.imp+'" data-trad="'+ev.trad+'" data-crowd="'+ev.crowd+'" data-flow="'+ev.flow+'" data-state="'+st.k+'">'+
+  '<div class="datecol"><div class="d">'+esc(ev.dl)+'</div>'+
+  '<div class="st '+st.k+'">'+st.label+'</div>'+
+  '<div class="conf">確認 '+esc(ev.src.chk)+(ev.src.need?'<br>要直前確認':'')+'</div>'+
+  '<div class="eid">'+esc(ev.id)+'</div></div>'+
+  '<div><h3>'+esc(ev.t)+
+    '<span class="badge imp'+ev.imp+'">影響 '+IMP[ev.imp]+'</span>'+
+    '<span class="badge tr'+ev.trad+'">取りやすさ '+TRAD[ev.trad]+'</span>'+
+    '<span class="badge cw'+ev.crowd+'">混雑 '+CROWD[ev.crowd]+'</span>'+
+    (ev.kata&&ev.kata!=='—'?'<span class="badge kata">型 '+esc(ev.kata)+'</span>':'')+
+    '<span class="badge biasb">'+esc(ev.bias)+'</span></h3>'+
+  '<div class="mech">'+esc(ev.mech)+'</div>'+
+  '<div class="meta2"><span>需給: <b>'+FLOW[ev.flow]+'</b></span><span>size: <b>'+esc(ev.size)+'</b></span>'+
+    '<span>保有: <b>'+esc(ev.hold)+'</b></span>'+(ev.exit&&ev.exit!=='—'?'<span>exit: <b>'+esc(ev.exit)+'</b></span>':'')+'</div>'+
+  '<div class="phases">'+
+    '<div class="phc pre'+(pn==='pre'?' now':'')+'"><div class="pk">事前</div><div class="pv">'+esc(ev.ph.pre)+'</div></div>'+
+    '<div class="phc day'+(pn==='day'?' now':'')+'"><div class="pk">当日</div><div class="pv">'+esc(ev.ph.day)+'</div></div>'+
+    '<div class="phc post'+(pn==='post'?' now':'')+'"><div class="pk">通過後</div><div class="pv">'+esc(ev.ph.post)+'</div></div>'+
+  '</div><div class="rows">';
+  if(ev.up)h+='<div class="row"><div class="k up">▲ 追い風</div><div class="v">'+esc(ev.up)+'</div></div>';
+  if(ev.dn)h+='<div class="row"><div class="k dn">▼ 向かい風</div><div class="v">'+esc(ev.dn)+'</div></div>';
+  if(ev.confirm&&ev.confirm.length)h+='<div class="row"><div class="k cf">✓ Go条件</div><div class="v">'+li(ev.confirm)+'</div></div>';
+  if(ev.invalid&&ev.invalid.length)h+='<div class="row"><div class="k iv">✕ 無効化</div><div class="v dim">'+li(ev.invalid)+'</div></div>';
+  if(ev.warn)h+='<div class="row"><div class="k wr">⚠ 注意</div><div class="v dim">'+esc(ev.warn)+'</div></div>';
+  h+='</div>'+reviewBlock(ev)+'<div class="src"><span>SOURCE: '+
+    (ev.src.url?'<a href="'+ev.src.url+'" target="_blank" rel="noopener">'+esc(ev.src.label)+'</a>':esc(ev.src.label))+'</span>'+
+    ev.themes.map(function(t){return'<span class="ttag">'+esc(t)+'</span>'}).join('')+
+  '</div></div></article>';
+  return h;
+}
+
+function render(){
+  EV.sort(function(a,b){return a.s<b.s?-1:1});
+  var html='',curM=0;
+  EV.forEach(function(ev){
+    var m=+ev.s.split('-')[1];
+    if(m!==curM){curM=m;
+      var cnt=EV.filter(function(x){return +x.s.split('-')[1]===m}).length;
+      html+='<div class="month" data-month><span>'+MN[m]+'</span><span class="mcount">'+cnt+' events</span></div>';}
+    html+=card(ev,status(ev));
+  });
+  document.getElementById('list').innerHTML=html;
+
+  var doList=[],dontList=[];
+  EV.forEach(function(ev){
+    var pn=phaseNow(ev);if(!pn)return;
+    var label=pn==='pre'?'事前':pn==='day'?'当日':'通過後';
+    var action=ev.ph[pn];
+    var isDont=false;
+    if(pn==='day'&&(ev.bias==='watch'||ev.size==='watch_only'))isDont=true;
+    if(pn==='day'&&/禁止|買わない|しない/.test(action))isDont=true;
+    if(isDont)dontList.push({imp:ev.imp,html:'<div class="dont-item"><b>['+esc(ev.dl)+']</b>'+esc(ev.t)+' → '+esc(action)+'</div>'});
+    if((ev.imp>=2||ev.trad>=2)&&!isDont){
+      doList.push({imp:ev.imp,html:'<div class="ap-item"><div class="ap-phase '+pn+'">['+label+']</div>'+
+        '<div><div class="ap-t">'+esc(ev.dl)+'　'+esc(ev.t)+'</div><div class="ap-a">→ '+esc(action)+'</div></div></div>'});
+    }
+  });
+  var dp=document.getElementById('dontPanel'),ap=document.getElementById('actionPanel');
+  if(dontList.length){dontList.sort(function(a,b){return b.imp-a.imp});dp.hidden=false;
+    document.getElementById('dontList').innerHTML=dontList.slice(0,5).map(function(x){return x.html}).join('');}else{dp.hidden=true;}
+  if(doList.length){doList.sort(function(a,b){return b.imp-a.imp});ap.hidden=false;
+    document.getElementById('apList').innerHTML=doList.slice(0,4).map(function(x){return x.html}).join('');}else{ap.hidden=true;}
+
+  var nu=document.getElementById('nextup');nu.hidden=true;
+  for(var i=0;i<EV.length;i++){
+    var st=status(EV[i]);
+    if(EV[i].imp>=2&&st.k!=='f'&&st.k!=='a'&&!phaseNow(EV[i])){
+      nu.hidden=false;
+      document.getElementById('nuCount').textContent='あと'+st.days+'日';
+      document.getElementById('nuTitle').textContent=EV[i].dl+'　'+EV[i].t;break;
+    }
+  }
+}
+render();
+
+document.getElementById('list').addEventListener('click',function(e){
+  var b=e.target.closest('.seg button');if(!b)return;
+  var id=b.dataset.id,f=b.dataset.field,v=b.dataset.val;
+  REV[id]=REV[id]||{};
+  REV[id][f]=(REV[id][f]===v)?null:v;
+  saveRev(REV);
+  b.parentNode.querySelectorAll('button').forEach(function(x){x.className=''});
+  if(REV[id][f]){
+    var cls={worked:'worked',failed:'failed',neutral:'neutral',yes:'yes',no:'no'}[v]||'';
+    b.className=('on '+cls).trim();
+  }
+  var det=b.closest('details'),sum=det.querySelector('summary');
+  sum.innerHTML='事後検証ログ '+(hasRev(REV[id])?'<span class="saved">● 記録済み</span>':'');
+});
+document.getElementById('list').addEventListener('input',function(e){
+  var el=e.target;if(!el.dataset||!el.dataset.field)return;
+  if(el.tagName!=='INPUT'&&el.tagName!=='TEXTAREA')return;
+  var id=el.dataset.id,f=el.dataset.field;
+  REV[id]=REV[id]||{};REV[id][f]=el.value;saveRev(REV);
+  var det=el.closest('details'),sum=det.querySelector('summary');
+  sum.innerHTML='事後検証ログ '+(hasRev(REV[id])?'<span class="saved">● 記録済み</span>':'');
+});
+
+document.getElementById('exportBtn').addEventListener('click',function(){
+  var out={};EV.forEach(function(ev){if(REV[ev.id]&&hasRev(REV[ev.id]))out[ev.id]={title:ev.t,date:ev.dl,review:REV[ev.id]}});
+  var blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='demand_calendar_review_2026H2.json';a.click();
+});
+document.getElementById('clearBtn').addEventListener('click',function(){
+  if(!confirm('保存済みの事後検証ログをすべて消去します。よろしいですか？'))return;
+  REV={};saveRev(REV);render();
+});
+
+document.getElementById('filters').addEventListener('click',function(e){
+  var b=e.target.closest('.chip');if(!b||!b.dataset.f)return;
+  document.querySelectorAll('#filters .chip').forEach(function(c){c.classList.remove('on')});
+  b.classList.add('on');var f=b.dataset.f;
+  document.querySelectorAll('.ev').forEach(function(el){
+    var imp=+el.dataset.imp,trad=+el.dataset.trad,crowd=+el.dataset.crowd,flow=el.dataset.flow,stt=el.dataset.state,show=true;
+    if(f==='imp3')show=imp===3;
+    else if(f==='trad3')show=trad===3;
+    else if(f==='lowcrowd')show=crowd<=1;
+    else if(f==='buy')show=(flow==='buy'||flow==='both');
+    else if(f==='sell')show=(flow==='sell'||flow==='both');
+    else if(f==='future')show=stt!=='f';
+    el.style.display=show?'':'none';
+  });
+  document.querySelectorAll('[data-month]').forEach(function(mh){
+    var n=mh.nextElementSibling,any=false;
+    while(n&&!n.hasAttribute('data-month')){if(n.style.display!=='none')any=true;n=n.nextElementSibling}
+    mh.style.display=any?'':'none';
+  });
+});
+})();
+</script>
+</body>
+</html>
